@@ -1,0 +1,116 @@
+/*** НАЧАЛО: внешний вид аудиопроигрывателя ***/
+
+/* Все ссылки как нормальный текст */
+.wp-playlist a {
+	color: initial !important;
+	font-weight: normal !important;	
+	text-decoration: none !important; 
+	border: 0px;
+	-webkit-box-shadow: none !important; 
+	box-shadow: none !important;
+}
+/* кнопки черного цвета */
+.mejs-button > button {
+    background-image: url(mejs-controls-dark.svg) !important;
+} 
+/* Фон плейера */
+.mejs-container, 
+.mejs-container .mejs-controls, 
+.mejs-embed, 
+.mejs-embed body {
+	background-color: rgb(250, 250, 250) !important;
+}
+/* Цифры времени */
+.mejs-time {
+	color: rgb(90, 90, 90) !important;
+}
+
+/* Полоса прокрутки времени */
+
+.mejs-time-total,
+.mejs-time-buffering,
+.mejs-horizontal-volume-total,
+.mejs-horizontal-volume-current,
+.mejs-time-loaded,
+.mejs-time-current {
+	height: 2px !important;	
+}
+.mejs-controls .mejs-time-rail .mejs-time-total {
+	margin-top: 9px;
+}
+.mejs-horizontal-volume-total {
+	margin-top: 4px !important;
+}
+
+.mejs-time-total {
+    background: rgba(90,90,90,.33) !important;
+}
+.mejs-time-buffering,
+.mejs-horizontal-volume-total,
+.mejs-time-loaded {
+    background: rgb(90,90,90) !important;	
+}
+
+.mejs-time-current,
+.mejs-horizontal-volume-current {
+	background-color: rgb(66, 133, 244) !important;
+}
+
+a.mejs-horizontal-volume-slider {
+	-webkit-box-shadow: none !important; 
+	box-shadow: none !important;
+}
+
+
+/* Ползунок  */
+.mejs-time-rail .mejs-time-handle-content:active, 
+.mejs-time-rail .mejs-time-handle-content:focus, 
+.mejs-horizontal-volume-handle,
+.mejs-time-handle {
+	background-color: rgb(66, 133, 244) !important;
+	border: 1px rgb(66, 133, 244) solid !important;
+	border-radius: 6px !important;
+	height: 12px;
+	width: 12px;
+}
+.mejs-time-rail .mejs-time-handle-content:active, 
+.mejs-time-rail .mejs-time-handle-content:focus {
+	left: 0px;
+    top: 0px;	
+}
+.mejs-horizontal-volume-handle ,
+.mejs-time-handle {
+	left: -8px;
+    top: -5px;
+}
+.mejs-horizontal-volume-handle {
+	display:block !important;
+	position: absolute;
+}
+
+.mejs-time-rail:hover .mejs-time-handle-content,
+.mejs-time-float-corner {
+	display: none !important;
+}
+
+/* Плейлист */
+div.wp-playlist-playing {
+	background: #ccc !important;	
+}
+
+div:hover.wp-playlist-playing,
+div:hover.wp-playlist-item {
+	color: #000 !important;
+	background:  #edecec !important;
+}
+
+.wp-playlist-playing a,
+.wp-playlist-playing a span {
+	font-size: 16px !important;
+	font-weight: bold !important;	 
+}
+
+.wp-playlist-item-length {
+	padding: 6px 0px;
+}
+/*** КОНЕЦ: внешний вид аудиопроигрывателя ***/

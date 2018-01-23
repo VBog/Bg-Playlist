@@ -1,0 +1,47 @@
+/*** НАЧАЛО: Внедряем кнопку загрузки трека ***/
+div.wp-playlist-item-download {
+	width: 24px;
+	height: 32px;
+	display: inline-block;
+	margin: 0px;
+	border: 0px;
+	padding: 0px;
+	margin-left: 4px;
+}
+.wp-playlist-item-download input[type="button"] {
+	border-radius: 5px;
+	width: 18px;
+	height: 24px;
+	margin:  4px 3px;
+	border: 0px;
+	padding: 0px;
+	cursor: pointer;
+}
+.wp-playlist-item-download input[type="button"],
+.wp-playlist-item-download input[type="button"]:hover,
+.wp-playlist-item-download input[type="button"]:focus {
+	background-color: transparent;
+	background-image: url('download_32x24r.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+div:hover.wp-playlist-item-download {
+	background:  #edecec;
+}
+.wp-playlist-item {
+	display: inline-block;
+	width: -webkit-calc(100% - 36px);
+    width: calc(100% - 36px);
+	height: 32px;
+	float: left;
+}
+.wp-playlist-item a {
+	width: 100%;
+	padding: 6px 0px;
+ }
+.wp-playlist-item span {
+	width: 100%;
+ 	padding: 0px;
+}
+
+/*** КОНЕЦ: Внедряем кнопку загрузки трека ***/
