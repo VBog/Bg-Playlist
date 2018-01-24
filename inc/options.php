@@ -46,7 +46,7 @@ function bg_playlist_plugin_settings(){
 	$val = bg_playlist_get_option();
 	
 	// параметры: $option_group, $option_name, $sanitize_callback
-	register_setting( 'bg_playlist_option_group1', 'bg_playlist_options1', 'sanitize_callback' );
+	register_setting( 'bg_playlist_option_group1', 'bg_playlist_options1', 'bg_playlist_sanitize_callback' );
 
 	// параметры: $id, $title, $callback, $page
 	add_settings_section( 'section_id', __('General settings','bg-playlist'), '', 'bg_playlist_page1' ); 
@@ -57,7 +57,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field3', __('Preload audiofile','bg-playlist'), 'fill_bg_playlist_field3', 'bg_playlist_page1', 'section_id' );
 
 	// параметры: $option_group, $option_name, $sanitize_callback
-	register_setting( 'bg_playlist_option_group2', 'bg_playlist_options2', 'sanitize_callback' );
+	register_setting( 'bg_playlist_option_group2', 'bg_playlist_options2', 'bg_playlist_sanitize_callback' );
 	
 	// параметры: $id, $title, $callback, $page
 	add_settings_section( 'section_id', __('Player appearance','bg-playlist'), '', 'bg_playlist_page2' ); 
@@ -189,7 +189,7 @@ function fill_bg_playlist_field19(){
 
 
 ## Очистка данных
-function sanitize_callback( $options ){ 
+function bg_playlist_sanitize_callback( $options ){ 
 	// очищаем
 	foreach( $options as $name => & $val ){
 // группа 1		
