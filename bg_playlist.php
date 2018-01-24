@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.0
+    Version: 1.0.1
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.0');
+define('BG_PLAYLIST_VERSION', '1.0.1');
 
 define('BG_HTTP_HOST',(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://".$_SERVER['HTTP_HOST']);
 
@@ -380,7 +380,7 @@ function bg_playlist_player ($playlist) {
 		$title = isset($song['title'])?html_entity_decode ($song['title']):"";
 		$caption = isset($song['caption'])?html_entity_decode ($song['caption']):"";
 		$description = isset($song['description'])?html_entity_decode ($song['description']):"";
-		$length = isset ($song['length'])?sectotime($song['length']):"";
+		$length = isset ($song['length'])?bg_playlist_sectotime($song['length']):"";
 		$artist = (isset($option['show_artist'])&&isset($song['artist']))?html_entity_decode ($song['artist']):"";
 		$album = (isset($option['show_album'])&&isset($song['album']))?html_entity_decode ($song['album']):"";
         $ftype = wp_check_filetype( $url, wp_get_mime_types() );
@@ -425,7 +425,7 @@ function bg_playlist_player ($playlist) {
 	Переводит секунды в часы, минуты, секунды
 
 ******************************************************************************************/
-function sectotime ($seconds) {
+function bg_playlist_sectotime ($seconds) {
 	if ((int)$seconds < 0) return "";
 	$minutes = floor($seconds / 60);		// Считаем минуты
 	$hours = 0;	//floor($minutes / 60); 	// Считаем количество полных часов
