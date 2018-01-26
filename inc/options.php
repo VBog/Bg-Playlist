@@ -55,6 +55,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field1', __('Create a playlist using audio links on the page automatically','bg-playlist'), 'fill_bg_playlist_field1', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field2', __('Audiolink class','bg-playlist'), 'fill_bg_playlist_field2', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field3', __('Preload audiofile','bg-playlist'), 'fill_bg_playlist_field3', 'bg_playlist_page1', 'section_id' );
+	add_settings_field('bg_playlist_field4', __('Disable playlist looping','bg-playlist'), 'fill_bg_playlist_field4', 'bg_playlist_page1', 'section_id' );
 
 	// параметры: $option_group, $option_name, $sanitize_callback
 	register_setting( 'bg_playlist_option_group2', 'bg_playlist_options2', 'bg_playlist_sanitize_callback' );
@@ -101,6 +102,14 @@ function fill_bg_playlist_field3(){
 		<option <?php selected('metadata', $val); ?> value='metadata'><?php _e('Service information only','bg-playlist'); ?></option>
 		<option <?php selected('auto', $val); ?> value='auto'><?php _e('All while loading the page','bg-playlist'); ?></option>
 	</select>
+	<?php
+}
+## Заполняем опцию 4
+function fill_bg_playlist_field4(){
+	$val = get_option('bg_playlist_options1');
+	$val = (!empty($val) && isset($val['noloop'])) ? $val['noloop'] : null;
+	?>
+	<label><input type="checkbox" name="bg_playlist_options1[noloop]" value="1" <?php checked( 1, $val ) ?> /> </label>
 	<?php
 }
 
@@ -204,6 +213,8 @@ function bg_playlist_sanitize_callback( $options ){
 			$val = sanitize_html_class( $val );
 			if (!$val) $val = 'none';
 		}
+		if( $name == 'noloop' )
+			$val = intval( $val );
 		
 // группа 2		
 		if( $name == 'show_header' )
@@ -245,6 +256,7 @@ function bg_playlist_get_option() {
 		array ( 'autoplaylist'=>null,
 				'audioclass'=>'wpaudio', 
 				'preload'=>'none',
+				'noloop'=>null,
 		) 
 	);
 	add_option( 'bg_playlist_options2', 

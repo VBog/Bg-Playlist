@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Bg Playlist\n"
-"POT-Creation-Date: 2018-01-23 01:04+0300\n"
-"PO-Revision-Date: 2018-01-23 01:04+0300\n"
+"POT-Creation-Date: 2018-01-26 11:58+0300\n"
+"PO-Revision-Date: 2018-01-26 12:00+0300\n"
 "Last-Translator: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language-Team: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language: ru\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.0.4\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: bg_playlist.php\n"
@@ -22,27 +22,27 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: bg_playlist.php:132
+#: bg_playlist.php:138
 msgid "This playlist format is not supported."
 msgstr "Этот формат плейлиста не поддерживается."
 
-#: bg_playlist.php:145 bg_playlist.php:197
+#: bg_playlist.php:151 bg_playlist.php:203
 msgid "Playlist not found or corrupt file."
 msgstr "Плейлист не найден или поврежден файл."
 
-#: bg_playlist.php:185 bg_playlist.php:242
+#: bg_playlist.php:191 bg_playlist.php:248
 msgid "Playlist is empty or corrupt file."
 msgstr "Плейлист пустой или поврежден файл."
 
-#: bg_playlist.php:255
+#: bg_playlist.php:261
 msgid "Create playlist: select the text and click this button."
 msgstr "Создать плейлист: выделите текст и нажмите эту кнопку."
 
-#: bg_playlist.php:496
+#: bg_playlist.php:503
 msgid "The page is need for revision."
 msgstr "Эта страница нуждается в пересмотре."
 
-#: bg_playlist.php:496
+#: bg_playlist.php:503
 msgid "Text can be lost:"
 msgstr "Текст может быть потерян:"
 
@@ -78,71 +78,75 @@ msgstr "Класс аудиоссылок"
 msgid "Preload audiofile"
 msgstr "Предварительная загрузка аудиофайла"
 
-#: inc/options.php:63
+#: inc/options.php:58
+msgid "Disable playlist looping"
+msgstr "Отключить циклическое воспроизведение плейлиста"
+
+#: inc/options.php:64
 msgid "Player appearance"
 msgstr "Внешний вид плейера"
 
-#: inc/options.php:66
+#: inc/options.php:67
 msgid "Show player header"
 msgstr "Показывать шапку плейера"
 
-#: inc/options.php:67
+#: inc/options.php:68
 msgid "Show tracklist"
 msgstr "Показывать список треков"
 
-#: inc/options.php:68
+#: inc/options.php:69
 msgid "Show track numbers"
 msgstr "Показывать номера треков"
 
-#: inc/options.php:69
+#: inc/options.php:70
 msgid "Show track trumb"
 msgstr "Показывать миниатюру трека"
 
-#: inc/options.php:70
+#: inc/options.php:71
 msgid "Show artists"
 msgstr "Показывать исполнителей"
 
-#: inc/options.php:71
+#: inc/options.php:72
 msgid "Show album name"
 msgstr "Показывать название альбома"
 
-#: inc/options.php:72
+#: inc/options.php:73
 msgid "Show Download button"
 msgstr "Показывать кнопку загрузки"
 
-#: inc/options.php:73
+#: inc/options.php:74
 msgid "Style"
 msgstr "Стиль"
 
-#: inc/options.php:74
+#: inc/options.php:75
 msgid "Skin"
 msgstr "Скин"
 
-#: inc/options.php:100
+#: inc/options.php:101
 msgid "Don't load"
 msgstr "Не загружать"
 
-#: inc/options.php:101
+#: inc/options.php:102
 msgid "Service information only"
 msgstr "Только служебная информация"
 
-#: inc/options.php:102
+#: inc/options.php:103
 msgid "All while loading the page"
 msgstr "Всё, во время загрузки страницы"
 
-#: inc/options.php:171
+#: inc/options.php:180
 msgid "light"
 msgstr "светлый"
 
-#: inc/options.php:172
+#: inc/options.php:181
 msgid "dark"
 msgstr "темный"
 
-#: inc/options.php:182
+#: inc/options.php:191
 msgid "For example"
 msgstr "Например"
 
-#: inc/options.php:184
+#: inc/options.php:193
 msgid "use light style"
 msgstr "используйте светлый стиль"
 

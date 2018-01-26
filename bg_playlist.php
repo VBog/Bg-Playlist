@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.0.1
+    Version: 1.1.0
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.0.1');
+define('BG_PLAYLIST_VERSION', '1.1.0');
 
 define('BG_HTTP_HOST',(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://".$_SERVER['HTTP_HOST']);
 
@@ -75,6 +75,7 @@ function bg_playlist_enqueue_frontend_scripts(){
 			'nonce' 	=> wp_create_nonce('bg-playlist-nonce'),
 			'header'	=> !empty($bg_playlist_option['show_header']),
 			'download'	=> !empty($bg_playlist_option['show_download']),
+			'noloop'	=> !empty($bg_playlist_option['noloop']),
 		) 
 	);
 }
@@ -279,6 +280,7 @@ function bg_insert_player($content) {
 		$playlist = array();
 		$num_tracks = 0;
 		foreach ( $matches[0] as $match ) {
+			unset($song);
 			if (preg_match( '#class\s*=\s*([\'\"])'.$bg_playlist_option['audioclass'].'(\1)#ui', $match[0] )) {
 				if (!isset($offset)) $offset = $match[1];
 				
@@ -380,9 +382,6 @@ function bg_playlist_player ($playlist) {
 		$title = isset($song['title'])?html_entity_decode ($song['title']):"";
 		$caption = isset($song['caption'])?html_entity_decode ($song['caption']):"";
 		$description = isset($song['description'])?html_entity_decode ($song['description']):"";
-		$length = isset ($song['length'])?bg_playlist_sectotime($song['length']):"";
-		$artist = (isset($option['show_artist'])&&isset($song['artist']))?html_entity_decode ($song['artist']):"";
-		$album = (isset($option['show_album'])&&isset($song['album']))?html_entity_decode ($song['album']):"";
         $ftype = wp_check_filetype( $url, wp_get_mime_types() );
         $track = array(
             'src' => $url,					// URL трека
@@ -392,6 +391,9 @@ function bg_playlist_player ($playlist) {
             'description' => $description,	// Описание
        );
  
+		$length = isset ($song['length'])?bg_playlist_sectotime($song['length']):"";
+		$artist = (isset($option['show_artist'])&&isset($song['artist']))?html_entity_decode ($song['artist']):"";
+		$album = (isset($option['show_album'])&&isset($song['album']))?html_entity_decode ($song['album']):"";
         $track['meta'] = array(
 			'length_formatted' => $length,	// Продолжительность трека [length_formatted]
  			'artist'=> $artist,				// Имя артиста
