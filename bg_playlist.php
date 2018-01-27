@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.1.0
+    Version: 1.2.0
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.1.0');
+define('BG_PLAYLIST_VERSION', '1.2.0');
 
 define('BG_HTTP_HOST',(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://".$_SERVER['HTTP_HOST']);
 
@@ -80,6 +80,44 @@ function bg_playlist_enqueue_frontend_scripts(){
 	);
 }
 add_action( 'wp_enqueue_scripts', 'bg_playlist_enqueue_frontend_scripts' );
+
+function bg_playlist_enqueue_admin_scripts(){
+	global $bg_playlist_option;
+
+	wp_enqueue_script( 'bg_playlist_proc', plugins_url( 'js/player.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
+	wp_localize_script( 'bg_playlist_proc', 'bg_playlist', 
+		array( 
+			'audioclass'	=> $bg_playlist_option['audioclass'],
+
+			'title' 		=> __('Insert audiolink', 'bg-playlist'),
+			'legend1' 		=> __('Audiolink atributes', 'bg-playlist'),
+			'legend2' 		=> __('Image atributes', 'bg-playlist'),
+
+			'l_class'		=> __('class', 'bg-playlist'),
+			'l_href'		=> __('URL', 'bg-playlist'),
+			'l_title'		=> __('Caption', 'bg-playlist'),
+			'l_alt'			=> __('Discription', 'bg-playlist'),
+			'l_data-artist'	=> __('Artist', 'bg-playlist'),
+			'l_data-album'	=> __('Album', 'bg-playlist'),
+			'l_data-length'	=> __('Duration, sec.', 'bg-playlist'),
+			'l_text'		=> __('Link text', 'bg-playlist'),
+
+			'l_src'			=> __('URL', 'bg-playlist'),
+			'l_width'		=> __('Width', 'bg-playlist'),
+			'l_height'		=> __('Height', 'bg-playlist'),
+
+			'insert'		=> __('Insert', 'bg-playlist'),
+			'cancel'		=> __('Cancel', 'bg-playlist'),
+			
+			'btn_audiolink'	=> __('Insert audiolink','bg-playlist'),
+			'btn_audiodisk'	=> __('Create playlist: select the text and click this button','bg-playlist'),
+			'btn_playlist'	=> __('Insert playlist','bg-playlist'),
+
+			'ttl_playlist'	=> __('Playlist URL','bg-playlist'),
+		) 
+	);
+}
+add_action( 'admin_enqueue_scripts', 'bg_playlist_enqueue_admin_scripts' );
 
 /*****************************************************************************************
 	Подключаем таблицу стилей
@@ -249,21 +287,6 @@ function bg_pls_parse ($src) {
 
 	return ($result);
 }
-
-/*****************************************************************************************
-	Добавляем кнопку Quicktags, вставляющую шорт код [audiodisk]...[/audiodisk]
-	 в текстовый редактор WP
-******************************************************************************************/
-function bg_audiodisk_custom_quicktags() {
-	if ( wp_script_is( 'quicktags' ) ) {
-	?>
-	<script type="text/javascript">
-	QTags.addButton( 'playlist_audio_disk', 'Audiodisk', '[audiodisk]', '[/audiodisk]', '0', '<?php  _e("Create playlist: select the text and click this button.","bg-playlist"); ?>', 1111 ); 
-	</script>
-	<?php
-	}
-}
-add_action( 'admin_print_footer_scripts', 'bg_audiodisk_custom_quicktags' );
 
 /*****************************************************************************************
 	Находим в тексте поста ссылки на аудио файлы с классом wpaudio
@@ -436,6 +459,86 @@ function bg_playlist_sectotime ($seconds) {
 	return  ($hours?($hours.":"):"").sprintf("%02d:%02d", $minutes, $seconds);
 }
 
+/*****************************************************************************************
+
+						КНОПКИ В WISIWYG РЕДАКТОРЕ TinyMCE
+
+******************************************************************************************/
+
+/*****************************************************************************************
+	Кнопка, вставляющая тег <a class="wpaudio" ...>...</a>
+
+******************************************************************************************/
+function bg_playlist_insert_links($plugin_array){ 
+    $plugin_array['bg_playlist_insert_links'] = plugins_url( 'mce/insert_links/insert_links.js', __FILE__ );
+    return $plugin_array;
+}
+
+/*****************************************************************************************
+	Кнопка, вставляющая шорткод [audiodisk]...[/audiodisk]
+
+******************************************************************************************/
+function bg_playlist_insert_audiodisk($plugin_array){ 
+    $plugin_array['bg_playlist_insert_audiodisk'] = plugins_url( 'mce/audiodisk/audiodisk.js', __FILE__ );
+    return $plugin_array;
+}
+
+/*****************************************************************************************
+	Кнопка, вставляющая шорткод [audiodisk src="..."]
+
+******************************************************************************************/
+function bg_playlist_insert_playlist($plugin_array){ 
+    $plugin_array['bg_playlist_insert_playlist'] = plugins_url( 'mce/playlist/playlist.js', __FILE__ );
+    return $plugin_array;
+}
+
+/*****************************************************************************************
+	Добавляем кнопки в список кнопок
+
+******************************************************************************************/
+function bg_playlist_add_buttons($buttons){
+    array_push($buttons, "|", 
+		"bg_playlist_insert_links", 
+		"bg_playlist_insert_audiodisk",
+		"bg_playlist_insert_playlist"
+	);
+    return $buttons;
+}
+
+/*****************************************************************************************
+	Подключаем кнопки в WISIWYG редакторе
+
+******************************************************************************************/
+function bg_playlist_custom_buttons(){
+    // проверяем права доступа
+    if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
+        return;
+    // только в режиме WYSIWYG (Rich Editor Mode)
+    if( get_user_option('rich_editing') == 'true'){
+        add_filter('mce_external_plugins', 'bg_playlist_insert_links');
+        add_filter('mce_external_plugins', 'bg_playlist_insert_audiodisk');
+        add_filter('mce_external_plugins', 'bg_playlist_insert_playlist');
+        add_filter('mce_buttons', 'bg_playlist_add_buttons');
+    }
+}
+add_action('init', 'bg_playlist_custom_buttons');
+
+/*****************************************************************************************
+	Добавляем кнопку Quicktags, вставляющую шорт код [audiodisk]...[/audiodisk]
+	 в текстовый редактор WP
+******************************************************************************************/
+function bg_audiodisk_custom_quicktags() {
+	if ( wp_script_is( 'quicktags' ) ) {
+	?>
+	<script type="text/javascript">
+	QTags.addButton( 'playlist_audio_disk', 'Audiodisk', '[audiodisk]', '[/audiodisk]', '0', '<?php  _e("Create playlist: select the text and click this button","bg-playlist"); ?>', 1111 ); 
+	</script>
+	<?php
+	}
+}
+add_action( 'admin_print_footer_scripts', 'bg_audiodisk_custom_quicktags' );
+
+
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 									СЛУЖЕБНЫЕ ФУНКЦИИ
@@ -502,3 +605,4 @@ function bg_check_wpaudio($content) {
 	
 	return ($warning?("<p>"." <b>".__('The page is need for revision.','bg-playlist')." </b>".__('Text can be lost:','bg-playlist')."<br>".$warning."</p>"):""); //Страница ожидает доработки.</b> Будет потерян текст:
 }
+

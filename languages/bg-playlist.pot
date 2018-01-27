@@ -3,14 +3,14 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: Bg Playlist\n"
-"POT-Creation-Date: 2018-01-26 11:58+0300\n"
+"POT-Creation-Date: 2018-01-27 23:50+0300\n"
 "PO-Revision-Date: 2018-01-22 21:33+0300\n"
 "Last-Translator: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language-Team: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.4\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: bg_playlist.php\n"
@@ -21,27 +21,95 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: bg_playlist.php:138
+#: bg_playlist.php:92 bg_playlist.php:112
+msgid "Insert audiolink"
+msgstr ""
+
+#: bg_playlist.php:93
+msgid "Audiolink atributes"
+msgstr ""
+
+#: bg_playlist.php:94
+msgid "Image atributes"
+msgstr ""
+
+#: bg_playlist.php:96
+msgid "class"
+msgstr ""
+
+#: bg_playlist.php:97 bg_playlist.php:105
+msgid "URL"
+msgstr ""
+
+#: bg_playlist.php:98
+msgid "Caption"
+msgstr ""
+
+#: bg_playlist.php:99
+msgid "Discription"
+msgstr ""
+
+#: bg_playlist.php:100
+msgid "Artist"
+msgstr ""
+
+#: bg_playlist.php:101
+msgid "Album"
+msgstr ""
+
+#: bg_playlist.php:102
+msgid "Duration, sec."
+msgstr ""
+
+#: bg_playlist.php:103
+msgid "Link text"
+msgstr ""
+
+#: bg_playlist.php:106
+msgid "Width"
+msgstr ""
+
+#: bg_playlist.php:107
+msgid "Height"
+msgstr ""
+
+#: bg_playlist.php:109
+msgid "Insert"
+msgstr ""
+
+#: bg_playlist.php:110
+msgid "Cancel"
+msgstr ""
+
+#: bg_playlist.php:113 bg_playlist.php:534
+msgid "Create playlist: select the text and click this button"
+msgstr ""
+
+#: bg_playlist.php:114
+msgid "Insert playlist"
+msgstr ""
+
+#: bg_playlist.php:116
+msgid "Playlist URL"
+msgstr ""
+
+#: bg_playlist.php:176
 msgid "This playlist format is not supported."
 msgstr ""
 
-#: bg_playlist.php:151 bg_playlist.php:203
+#: bg_playlist.php:189 bg_playlist.php:241
 msgid "Playlist not found or corrupt file."
 msgstr ""
 
-#: bg_playlist.php:191 bg_playlist.php:248
+#: bg_playlist.php:229 bg_playlist.php:286
 msgid "Playlist is empty or corrupt file."
 msgstr ""
 
-#: bg_playlist.php:261
-msgid "Create playlist: select the text and click this button."
-msgstr ""
-
-#: bg_playlist.php:503
+#: bg_playlist.php:606
 msgid "The page is need for revision."
 msgstr ""
 
-#: bg_playlist.php:503
+#: bg_playlist.php:606
 msgid "Text can be lost:"
 msgstr ""
 
