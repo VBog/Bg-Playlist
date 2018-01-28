@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.2.0
+    Version: 1.2.1
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,9 +37,9 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.2.0');
+define('BG_PLAYLIST_VERSION', '1.2.1');
 
-define('BG_HTTP_HOST',(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://".$_SERVER['HTTP_HOST']);
+define('BG_HTTP_HOST',((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 
 /*****************************************************************************************
 	Настройки плагина
