@@ -56,6 +56,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field2', __('Audiolink class','bg-playlist'), 'fill_bg_playlist_field2', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field3', __('Preload audiofile','bg-playlist'), 'fill_bg_playlist_field3', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field4', __('Disable playlist looping','bg-playlist'), 'fill_bg_playlist_field4', 'bg_playlist_page1', 'section_id' );
+	add_settings_field('bg_playlist_field5', __('Get duration from audiofile','bg-playlist'), 'fill_bg_playlist_field5', 'bg_playlist_page1', 'section_id' );
 
 	// параметры: $option_group, $option_name, $sanitize_callback
 	register_setting( 'bg_playlist_option_group2', 'bg_playlist_options2', 'bg_playlist_sanitize_callback' );
@@ -87,7 +88,7 @@ function fill_bg_playlist_field1(){
 ## Заполняем опцию 2
 function fill_bg_playlist_field2(){
 	$val = get_option('bg_playlist_options1');
-	$val = (!empty($val) && isset($val['audioclass'])) ? $val['audioclass'] : 'wpaudio';
+	$val = (!empty($val) && isset($val['audioclass'])) ? $val['audioclass'] : '';
 	?>
 	<label><input type="text" name="bg_playlist_options1[audioclass]" value="<?php echo $val ?>"  /> </label>
 	<?php
@@ -111,6 +112,14 @@ function fill_bg_playlist_field4(){
 	?>
 	<label><input type="checkbox" name="bg_playlist_options1[noloop]" value="1" <?php checked( 1, $val ) ?> /> </label>
 	<?php
+}
+## Заполняем опцию 5
+function fill_bg_playlist_field5(){
+	$val = get_option('bg_playlist_options1');
+	$val = (!empty($val) && isset($val['get_duration'])) ? $val['get_duration'] : null;
+	?>
+	<label><input type="checkbox" name="bg_playlist_options1[get_duration]" value="1" <?php checked( 1, $val ) ?> /> </label>
+	<?php _e('(If the length of the track isn\'t set, try to get metadata from the audiofile).','bg-playlist');
 }
 
 ###############################################################
@@ -207,7 +216,6 @@ function bg_playlist_sanitize_callback( $options ){
 
 		if( $name == 'audioclass' ) {
 			$val = sanitize_html_class( $val );
-			if (!$val) $val = 'wpaudio';
 		}
 		if( $name == 'preload' ) {
 			$val = sanitize_html_class( $val );
@@ -216,6 +224,9 @@ function bg_playlist_sanitize_callback( $options ){
 		if( $name == 'noloop' )
 			$val = intval( $val );
 		
+		if( $name == 'get_duration' )
+			$val = intval( $val );
+	
 // группа 2		
 		if( $name == 'show_header' )
 			$val = intval( $val );
@@ -257,6 +268,7 @@ function bg_playlist_get_option() {
 				'audioclass'=>'wpaudio', 
 				'preload'=>'none',
 				'noloop'=>null,
+				'get_duration'=>null,
 		) 
 	);
 	add_option( 'bg_playlist_options2', 

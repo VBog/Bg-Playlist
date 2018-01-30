@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.2.1
+    Version: 1.3.0
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.2.1');
+define('BG_PLAYLIST_VERSION', '1.3.0');
 
 define('BG_HTTP_HOST',((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 
@@ -76,6 +76,7 @@ function bg_playlist_enqueue_frontend_scripts(){
 			'header'	=> !empty($bg_playlist_option['show_header']),
 			'download'	=> !empty($bg_playlist_option['show_download']),
 			'noloop'	=> !empty($bg_playlist_option['noloop']),
+			'get_duration'	=> !empty($bg_playlist_option['get_duration']),
 		) 
 	);
 }
@@ -95,7 +96,7 @@ function bg_playlist_enqueue_admin_scripts(){
 
 			'l_class'		=> __('class', 'bg-playlist'),
 			'l_href'		=> __('URL', 'bg-playlist'),
-			'l_title'		=> __('Caption', 'bg-playlist'),
+			'l_title'		=> __('Title', 'bg-playlist'),
 			'l_alt'			=> __('Discription', 'bg-playlist'),
 			'l_data-artist'	=> __('Artist', 'bg-playlist'),
 			'l_data-album'	=> __('Album', 'bg-playlist'),
@@ -164,18 +165,23 @@ function bg_audiodisk_sortcode( $atts, $content = null ) {
 		if ( strtolower($ext) == 'm3u') {
 			$playlist = bg_m3u_parse ($src);
 			if (is_array($playlist)) {
-				$content = bg_playlist_player ($playlist);
+				$playlist = bg_playlist_player ($playlist);
 			}
-			else $content = $playlist;
 		} elseif ( strtolower($ext) == 'pls') {
 			$playlist = bg_pls_parse ($src);
 			if (is_array($playlist)) {
-				$content = bg_playlist_player ($playlist);
+				$playlist = bg_playlist_player ($playlist);
 			}
-			else $content = $playlist;
-		} else $content = $src." - ".__('This playlist format is not supported.','bg-playlist'). PHP_EOL ; 
-	} elseif ($content) $content = bg_insert_player($content);
-	return $content;
+		} else $playlist = $src." - ".__('This playlist format is not supported.','bg-playlist'). PHP_EOL ; 
+	} 
+	if ($content) {
+		$content = str_replace('[audiodisk]', '', $content);
+		$content = str_replace('[/audiodisk]', '', $content);
+		$content = bg_insert_player($content);
+		$content = do_shortcode($content);
+	}
+
+	return $playlist.$content;
 }
 add_shortcode( 'audiodisk', 'bg_audiodisk_sortcode' );
 
@@ -289,7 +295,7 @@ function bg_pls_parse ($src) {
 }
 
 /*****************************************************************************************
-	Находим в тексте поста ссылки на аудио файлы с классом wpaudio
+	Находим в тексте поста ссылки на аудио файлы
 	и вставляем вместо них плейлист 
 ******************************************************************************************/
 function bg_insert_player($content) {
@@ -304,12 +310,13 @@ function bg_insert_player($content) {
 		$num_tracks = 0;
 		foreach ( $matches[0] as $match ) {
 			unset($song);
-			if (preg_match( '#class\s*=\s*([\'\"])'.$bg_playlist_option['audioclass'].'(\1)#ui', $match[0] )) {
+			if (!$bg_playlist_option['audioclass'] ||
+				preg_match( '#class\s*=\s*([\'\"])[^\'\"]*'.$bg_playlist_option['audioclass'].'[^\'\"]*(\1)#ui', $match[0] )) {
 				if (!isset($offset)) $offset = $match[1];
 				
-				preg_match( '#href\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
+				preg_match( '#href\s*=\s*([\'\"])([^\'\"]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[0], $mt );
 				if (!empty ($mt[2])) {
-					$url = $mt[2];
+					$url = trim($mt[2]);
 					if ($url[0] == '/') $url = BG_HTTP_HOST.$url;
 					$song['url'] = esc_url($url);
 				}
@@ -335,7 +342,7 @@ function bg_insert_player($content) {
 								$song['image'] = $image;
 							}
 						}
-						$song['title'] = sanitize_text_field ($text);
+						$song['caption'] = sanitize_text_field ($text);
 					}
 					preg_match( '#data\-length\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
 					if (!empty ($mt[2])) $song['length'] = (int) $mt[2];
@@ -348,13 +355,14 @@ function bg_insert_player($content) {
 					else $song['album'] = $post_title;
 					
 					preg_match( '#title\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
-					if (!empty ($mt[2]))  $song['caption'] = sanitize_text_field ($mt[2]);
+					if (!empty ($mt[2]))  $song['title'] = sanitize_text_field ($mt[2]);
+					if (empty ($song['title'])){
+						if (!empty ($song['caption']))$song['title'] = $song['caption'];
+						else $song['title'] = basename($song['url']);
+					}
 					
 					preg_match( '#alt\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
 					if (!empty ($mt[2])) $song['description'] = sanitize_text_field ($mt[2]);
-					
-					if (empty ($song['title'])) $song['title'] = $song['caption'];
-					if (empty ($song['title'])) $song['title'] = basename($song['url']);
 					
 					if ($single_audio_meta) 
 						$content = str_replace ($match[0], bg_playlist_player (array($song)), $content);

@@ -88,6 +88,18 @@ jQuery(document).ready(function(){
 	jQuery("#cancel").click(function(){
 		tinyMCEPopup.close();
 	});
+	
+	var aud = new Audio();
+	jQuery('input#href').change (function(){
+		jQuery('input#data-length').val('');
+		aud.src = jQuery('input#href').val();
+		if (aud.src) {
+			aud.addEventListener('loadedmetadata', function() {
+				time = Math.round(aud.duration);
+				jQuery('input#data-length').val(time);
+			});	
+		}
+	});
 })
  </script>
   

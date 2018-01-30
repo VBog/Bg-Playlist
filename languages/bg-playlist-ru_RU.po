@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Bg Playlist\n"
-"POT-Creation-Date: 2018-01-27 23:50+0300\n"
-"PO-Revision-Date: 2018-01-27 23:52+0300\n"
+"POT-Creation-Date: 2018-01-30 10:33+0300\n"
+"PO-Revision-Date: 2018-01-30 10:34+0300\n"
 "Last-Translator: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language-Team: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language: ru\n"
@@ -22,95 +22,95 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: bg_playlist.php:92 bg_playlist.php:112
+#: bg_playlist.php:93 bg_playlist.php:113
 msgid "Insert audiolink"
 msgstr "Вставить аудиоссылку"
 
-#: bg_playlist.php:93
+#: bg_playlist.php:94
 msgid "Audiolink atributes"
 msgstr "Атрибуты аудиоссылки"
 
-#: bg_playlist.php:94
+#: bg_playlist.php:95
 msgid "Image atributes"
 msgstr "Атрибуты изображения"
 
-#: bg_playlist.php:96
+#: bg_playlist.php:97
 msgid "class"
 msgstr "class"
 
-#: bg_playlist.php:97 bg_playlist.php:105
+#: bg_playlist.php:98 bg_playlist.php:106
 msgid "URL"
 msgstr "URL"
 
-#: bg_playlist.php:98
-msgid "Caption"
-msgstr "Заголовок"
-
 #: bg_playlist.php:99
+msgid "Title"
+msgstr ""
+
+#: bg_playlist.php:100
 msgid "Discription"
 msgstr "Описание"
 
-#: bg_playlist.php:100
+#: bg_playlist.php:101
 msgid "Artist"
 msgstr "Исполнитель"
 
-#: bg_playlist.php:101
+#: bg_playlist.php:102
 msgid "Album"
 msgstr "Альбом"
 
-#: bg_playlist.php:102
+#: bg_playlist.php:103
 msgid "Duration, sec."
 msgstr "Продолжительность, сек."
 
-#: bg_playlist.php:103
+#: bg_playlist.php:104
 msgid "Link text"
 msgstr "Текст ссылки"
 
-#: bg_playlist.php:106
+#: bg_playlist.php:107
 msgid "Width"
 msgstr "Ширина"
 
-#: bg_playlist.php:107
+#: bg_playlist.php:108
 msgid "Height"
 msgstr "Высота"
 
-#: bg_playlist.php:109
+#: bg_playlist.php:110
 msgid "Insert"
 msgstr "Вставить"
 
-#: bg_playlist.php:110
+#: bg_playlist.php:111
 msgid "Cancel"
 msgstr "Отмена"
 
-#: bg_playlist.php:113 bg_playlist.php:534
+#: bg_playlist.php:114 bg_playlist.php:542
 msgid "Create playlist: select the text and click this button"
 msgstr "Создать плейлист: выберите текст и нажмите эту кнопку"
 
-#: bg_playlist.php:114
+#: bg_playlist.php:115
 msgid "Insert playlist"
 msgstr "Вставить плейлист"
 
-#: bg_playlist.php:116
+#: bg_playlist.php:117
 msgid "Playlist URL"
 msgstr "URL плейлиста"
 
-#: bg_playlist.php:176
+#: bg_playlist.php:175
 msgid "This playlist format is not supported."
 msgstr "Этот формат плейлиста не поддерживается."
 
-#: bg_playlist.php:189 bg_playlist.php:241
+#: bg_playlist.php:195 bg_playlist.php:247
 msgid "Playlist not found or corrupt file."
 msgstr "Плейлист не найден или поврежден файл."
 
-#: bg_playlist.php:229 bg_playlist.php:286
+#: bg_playlist.php:235 bg_playlist.php:292
 msgid "Playlist is empty or corrupt file."
 msgstr "Плейлист пустой или поврежден файл."
 
-#: bg_playlist.php:606
+#: bg_playlist.php:614
 msgid "The page is need for revision."
 msgstr "Эта страница нуждается в пересмотре."
 
-#: bg_playlist.php:606
+#: bg_playlist.php:614
 msgid "Text can be lost:"
 msgstr "Текст может быть потерян:"
 
@@ -150,71 +150,83 @@ msgstr "Предварительная загрузка аудиофайла"
 msgid "Disable playlist looping"
 msgstr "Отключить циклическое воспроизведение плейлиста"
 
-#: inc/options.php:64
+#: inc/options.php:59
+msgid "Get duration from audiofile"
+msgstr "Получить продолжительность из аудиофайла"
+
+#: inc/options.php:65
 msgid "Player appearance"
 msgstr "Внешний вид плейера"
 
-#: inc/options.php:67
+#: inc/options.php:68
 msgid "Show player header"
 msgstr "Показывать шапку плейера"
 
-#: inc/options.php:68
+#: inc/options.php:69
 msgid "Show tracklist"
 msgstr "Показывать список треков"
 
-#: inc/options.php:69
+#: inc/options.php:70
 msgid "Show track numbers"
 msgstr "Показывать номера треков"
 
-#: inc/options.php:70
+#: inc/options.php:71
 msgid "Show track trumb"
 msgstr "Показывать миниатюру трека"
 
-#: inc/options.php:71
+#: inc/options.php:72
 msgid "Show artists"
 msgstr "Показывать исполнителей"
 
-#: inc/options.php:72
+#: inc/options.php:73
 msgid "Show album name"
 msgstr "Показывать название альбома"
 
-#: inc/options.php:73
+#: inc/options.php:74
 msgid "Show Download button"
 msgstr "Показывать кнопку загрузки"
 
-#: inc/options.php:74
+#: inc/options.php:75
 msgid "Style"
 msgstr "Стиль"
 
-#: inc/options.php:75
+#: inc/options.php:76
 msgid "Skin"
 msgstr "Скин"
 
-#: inc/options.php:101
+#: inc/options.php:102
 msgid "Don't load"
 msgstr "Не загружать"
 
-#: inc/options.php:102
+#: inc/options.php:103
 msgid "Service information only"
 msgstr "Только служебная информация"
 
-#: inc/options.php:103
+#: inc/options.php:104
 msgid "All while loading the page"
 msgstr "Всё, во время загрузки страницы"
 
-#: inc/options.php:180
+#: inc/options.php:122
+msgid ""
+"(If the length of the track isn't set, try to get metadata from the "
+"audiofile)."
+msgstr ""
+"(Если длительность трека не установлена, попробовать получить метаданные из "
+"аудиофайла)."
+
+#: inc/options.php:189
 msgid "light"
 msgstr "светлый"
 
-#: inc/options.php:181
+#: inc/options.php:190
 msgid "dark"
 msgstr "темный"
 
-#: inc/options.php:191
+#: inc/options.php:200
 msgid "For example"
 msgstr "Например"
 
-#: inc/options.php:193
+#: inc/options.php:202
 msgid "use light style"
 msgstr "используйте светлый стиль"
 
@@ -235,6 +247,9 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://bogaiskov.ru"
 msgstr ""
+
+#~ msgid "Caption"
+#~ msgstr "Заголовок"
 
 #~ msgid "Insert audiolink."
 #~ msgstr "Вставить аудиоссылку"

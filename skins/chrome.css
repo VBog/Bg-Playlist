@@ -107,11 +107,10 @@ div:hover.wp-playlist-item {
 .wp-playlist-playing a,
 .wp-playlist-playing a span {
 	font-size: 16px !important;
-	font-weight: bold !important;	 
+	font-weight: bold !important;
 }
 
-.wp-playlist-caption
 .wp-playlist-item-length {
-	padding: 5px 0px;
+	padding: 5px 6px;
 }
 /*** КОНЕЦ: внешний вид аудиопроигрывателя ***/

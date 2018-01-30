@@ -12,7 +12,7 @@
 					],
 					onsubmit: function(e) {
 						// Insert content when the window form is submitted
-						editor.insertContent('[audiodisk src="'+e.data.src+'"]');
+						editor.insertContent('[audiodisk src="'+e.data.src+'" /]');
 					}
 				});
 			}

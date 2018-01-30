@@ -1,5 +1,27 @@
 jQuery(document).ready(function(){
 	jQuery('div.wp-playlist-item').ready(function () {
+	
+		bg_tooltip();	// Всплывающая подсказка с названием трека
+	
+/*** НАЧАЛО: Определяем продолжительность трека, если не задано ***/
+		if (bg_playlist.get_duration) {
+			jQuery('div.wp-playlist-item').each(function () {
+			var el = jQuery(this);
+				if (el.children('div.wp-playlist-item-length').length > 0) return;
+			var aud = new Audio();
+				the_link = el.children('a').prop('href');
+				aud.src = the_link;
+				aud.addEventListener('loadedmetadata', function() {
+					sec = Math.round(aud.duration);
+					min = Math.floor(sec / 60);
+					sec = sec - min*60;
+					time = ((min<10)?('0'+min):min)+':'+((sec<10)?('0'+sec):sec);
+					el.append('<div class="wp-playlist-item-length">'+time+'</div>');
+				});	
+			});
+		}
+/*** КОНЕЦ: Определяем продолжительность трека, если не задано ***/
+	
 /*** НАЧАЛО: Внедряем кнопку загрузки трека ***/
 		if (bg_playlist.download) {
 			jQuery('div.wp-playlist-item').each(function () {
@@ -37,3 +59,75 @@ jQuery(document).ready(function(){
 	}
 /*** КОНЕЦ: Хак - прерываем бесконечный цикл прокрутки плейлиста ***/
 });
+
+/*** НАЧАЛО: Всплывающая подсказка для ссылок ***/
+function bg_tooltip() {
+	
+//    var targets = jQuery( '[rel~=tooltip]' ),
+    var targets = jQuery( 'a.wp-playlist-caption' ),
+        target  = false,
+        tooltip = false,
+        title   = false;
+        target_win  = jQuery( 'div.wp-playlist:first' );
+
+    targets.bind( 'mouseenter', function() {
+        target  = jQuery( this );
+		if (this.scrollWidth-this.clientWidth <= 0) return;	// Только если текст не умещается в блоке
+		
+		target.attr('title', jQuery(this).text().replace(/\s{2,}/g, ' '));
+        tip     = target.attr( 'title' );
+        tooltip = jQuery( '<div id="tooltip"></div>' );
+
+        if( !tip || tip == '' )
+            return false;
+
+        target.removeAttr( 'title' );
+        tooltip.css( 'opacity', 0 )
+               .html( tip )
+               .appendTo( 'body' );
+
+        var init_tooltip = function()
+        {
+			tooltip.css( 'max-width', 480 );
+			tooltip.css( 'width', jQuery( window ).width() - 10);
+
+            var pos_left = target_win.offset().left + ( target_win.outerWidth() / 2 ) - ( tooltip.outerWidth() / 2 ),
+                pos_top  = target.offset().top - tooltip.outerHeight() - 10;
+
+            if( pos_left < 0 ) {
+                pos_left = target_win.offset().left + target_win.outerWidth() / 2 - 20;
+                tooltip.addClass( 'left' );
+            } else tooltip.removeClass( 'left' );
+
+            if( pos_left + tooltip.outerWidth() > jQuery( window ).width() ) {
+                pos_left = target_win.offset().left - tooltip.outerWidth() + target_win.outerWidth() / 2 + 20;
+                tooltip.addClass( 'right' );
+            } else tooltip.removeClass( 'right' );
+
+            if( pos_top < 0 ) {
+                var pos_top  = target.offset().top + target.outerHeight();
+                tooltip.addClass( 'top' );
+            }
+            else tooltip.removeClass( 'top' );
+
+            tooltip.css( { left: pos_left, top: pos_top } )
+                   .animate( { top: '+=10', opacity: 1 }, 250 );
+        };
+
+        init_tooltip();
+
+        var remove_tooltip = function() {
+            tooltip.animate( { top: '-=10', opacity: 0 }, 250, function() {
+                jQuery( this ).remove();
+            });
+
+            target.attr( 'title', tip );
+			clearTimeout(timerId);
+        };
+        target.bind( 'mouseleave', remove_tooltip );
+        tooltip.bind( 'click', remove_tooltip );
+		timerId = setTimeout(remove_tooltip, 7000);
+		
+    });
+}
+/*** КОНЕЦ: Всплывающая подсказка для ссылок ***/
