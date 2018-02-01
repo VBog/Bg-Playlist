@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.3.0
+    Version: 1.3.1
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.3.0');
+define('BG_PLAYLIST_VERSION', '1.3.1');
 
 define('BG_HTTP_HOST',((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 
@@ -66,71 +66,77 @@ add_action( 'plugins_loaded', 'bg_playlist_load_textdomain' );
 	Регистрируем JS-скрипт
 	
 ******************************************************************************************/
-function bg_playlist_enqueue_frontend_scripts(){
-	global $bg_playlist_option;
+if (!is_admin()) {
+	function bg_playlist_enqueue_frontend_scripts(){
+		global $bg_playlist_option;
 
-	wp_enqueue_script( 'bg_playlist_proc', plugins_url( 'js/player.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
-	wp_localize_script( 'bg_playlist_proc', 'bg_playlist', 
-		array( 
-			'nonce' 	=> wp_create_nonce('bg-playlist-nonce'),
-			'header'	=> !empty($bg_playlist_option['show_header']),
-			'download'	=> !empty($bg_playlist_option['show_download']),
-			'noloop'	=> !empty($bg_playlist_option['noloop']),
-			'get_duration'	=> !empty($bg_playlist_option['get_duration']),
-		) 
-	);
+		wp_enqueue_script( 'bg_playlist_proc', plugins_url( 'js/player.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
+		wp_localize_script( 'bg_playlist_proc', 'bg_playlist', 
+			array( 
+				'nonce' 	=> wp_create_nonce('bg-playlist-nonce'),
+				'header'	=> !empty($bg_playlist_option['show_header']),
+				'download'	=> !empty($bg_playlist_option['show_download']),
+				'noloop'	=> !empty($bg_playlist_option['noloop']),
+				'get_duration'	=> !empty($bg_playlist_option['get_duration']),
+			) 
+		);
+	}
+	add_action( 'wp_enqueue_scripts', 'bg_playlist_enqueue_frontend_scripts' );
+
+} else {	
+	
+	function bg_playlist_enqueue_admin_scripts(){
+		global $bg_playlist_option;
+
+		wp_enqueue_script( 'bg_playlist_admin', plugins_url( 'js/player_admin.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
+		wp_localize_script( 'bg_playlist_admin', 'bg_playlist', 
+			array( 
+				'audioclass'	=> $bg_playlist_option['audioclass'],
+
+				'title' 		=> __('Insert audiolink', 'bg-playlist'),
+				'legend1' 		=> __('Audiolink atributes', 'bg-playlist'),
+				'legend2' 		=> __('Image atributes', 'bg-playlist'),
+
+				'l_class'		=> __('class', 'bg-playlist'),
+				'l_href'		=> __('URL', 'bg-playlist'),
+				'l_title'		=> __('Title', 'bg-playlist'),
+				'l_alt'			=> __('Discription', 'bg-playlist'),
+				'l_data-artist'	=> __('Artist', 'bg-playlist'),
+				'l_data-album'	=> __('Album', 'bg-playlist'),
+				'l_data-length'	=> __('Duration, sec.', 'bg-playlist'),
+				'l_text'		=> __('Link text', 'bg-playlist'),
+
+				'l_src'			=> __('URL', 'bg-playlist'),
+				'l_width'		=> __('Width', 'bg-playlist'),
+				'l_height'		=> __('Height', 'bg-playlist'),
+
+				'insert'		=> __('Insert', 'bg-playlist'),
+				'cancel'		=> __('Cancel', 'bg-playlist'),
+				
+				'btn_audiolink'	=> __('Insert audiolink','bg-playlist'),
+				'btn_audiodisk'	=> __('Create playlist: select the text and click this button','bg-playlist'),
+				'btn_playlist'	=> __('Insert playlist','bg-playlist'),
+
+				'ttl_playlist'	=> __('Playlist URL','bg-playlist'),
+			) 
+		);
+	}
+	add_action( 'admin_enqueue_scripts', 'bg_playlist_enqueue_admin_scripts' );
 }
-add_action( 'wp_enqueue_scripts', 'bg_playlist_enqueue_frontend_scripts' );
-
-function bg_playlist_enqueue_admin_scripts(){
-	global $bg_playlist_option;
-
-	wp_enqueue_script( 'bg_playlist_proc', plugins_url( 'js/player.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
-	wp_localize_script( 'bg_playlist_proc', 'bg_playlist', 
-		array( 
-			'audioclass'	=> $bg_playlist_option['audioclass'],
-
-			'title' 		=> __('Insert audiolink', 'bg-playlist'),
-			'legend1' 		=> __('Audiolink atributes', 'bg-playlist'),
-			'legend2' 		=> __('Image atributes', 'bg-playlist'),
-
-			'l_class'		=> __('class', 'bg-playlist'),
-			'l_href'		=> __('URL', 'bg-playlist'),
-			'l_title'		=> __('Title', 'bg-playlist'),
-			'l_alt'			=> __('Discription', 'bg-playlist'),
-			'l_data-artist'	=> __('Artist', 'bg-playlist'),
-			'l_data-album'	=> __('Album', 'bg-playlist'),
-			'l_data-length'	=> __('Duration, sec.', 'bg-playlist'),
-			'l_text'		=> __('Link text', 'bg-playlist'),
-
-			'l_src'			=> __('URL', 'bg-playlist'),
-			'l_width'		=> __('Width', 'bg-playlist'),
-			'l_height'		=> __('Height', 'bg-playlist'),
-
-			'insert'		=> __('Insert', 'bg-playlist'),
-			'cancel'		=> __('Cancel', 'bg-playlist'),
-			
-			'btn_audiolink'	=> __('Insert audiolink','bg-playlist'),
-			'btn_audiodisk'	=> __('Create playlist: select the text and click this button','bg-playlist'),
-			'btn_playlist'	=> __('Insert playlist','bg-playlist'),
-
-			'ttl_playlist'	=> __('Playlist URL','bg-playlist'),
-		) 
-	);
-}
-add_action( 'admin_enqueue_scripts', 'bg_playlist_enqueue_admin_scripts' );
 
 /*****************************************************************************************
 	Подключаем таблицу стилей
 
 ******************************************************************************************/
-function bg_playlist_enqueue_frontend_styles () {
-	global $bg_playlist_option;
-	
-	wp_enqueue_style( "bg_playlist_styles", plugins_url( "css/player.css", __FILE__ ), array() , BG_PLAYLIST_VERSION  );
-	wp_enqueue_style( "bg_playlist_skin", $bg_playlist_option['skin'], array() , BG_PLAYLIST_VERSION  );
+if (!is_admin()) {
+	function bg_playlist_enqueue_frontend_styles () {
+		global $bg_playlist_option;
+		
+		wp_enqueue_style( "bg_playlist_styles", plugins_url( "css/player.css", __FILE__ ), array() , BG_PLAYLIST_VERSION  );
+		wp_enqueue_style( "bg_playlist_skin", $bg_playlist_option['skin'], array() , BG_PLAYLIST_VERSION  );
+	}
+	add_action( 'wp_enqueue_scripts' , 'bg_playlist_enqueue_frontend_styles' );
 }
-add_action( 'wp_enqueue_scripts' , 'bg_playlist_enqueue_frontend_styles' );
 
 /*****************************************************************************************
 	Регистрируем фильтр на контент поста	
@@ -217,15 +223,15 @@ function bg_m3u_parse ($src) {
 					$item = BG_HTTP_HOST.$item;
 				}
 			}
-			$result[$index]['url'] = esc_url($item);
+			$result[$index]['url'] = esc_url_raw($item);
 			
 			$item = trim(substr($match['text'][$i], 1));
 			if (strchr($item, '-') === false) {
-				$result[$index]['title'] = wp_filter_kses(trim($item));
+				$result[$index]['title'] = bg_wp_kses($item);
 			} else {
 				list($artist, $title) = explode('-', $item, 2);
-				$result[$index]['artist'] = wp_filter_kses(trim($artist));
-				$result[$index]['title'] = wp_filter_kses(trim($title));
+				$result[$index]['artist'] = bg_wp_kses($artist);
+				$result[$index]['title'] = bg_wp_kses($title);
 			}
 			if (empty ($result[$index]['title']) || $result[$index]['title']=='-') 
 				$result[$index]['title'] = basename($result[$index]['url']);
@@ -267,16 +273,16 @@ function bg_pls_parse ($src) {
 					$item = BG_HTTP_HOST.$item;
 				}
 			}
-			$result[$index]['url'] = esc_url($item);
+			$result[$index]['url'] = esc_url_raw($item);
 			
 			preg_match('/(?:Title'.$result[$index]['num'].'=)\s*(?:(?P<text>[^\r\n]+))/i', $content, $mt );
 			$item = $mt['text'];
 			if (strchr($item, '-') === false) {
-				$result[$index]['title'] = wp_filter_kses(trim($item));
+				$result[$index]['title'] = bg_wp_kses($item);
 			} else {
 				list($artist, $title) = explode('-', $item, 2);
-				$result[$index]['artist'] = wp_filter_kses(trim($artist));
-				$result[$index]['title'] = wp_filter_kses(trim($title));
+				$result[$index]['artist'] = bg_wp_kses($artist);
+				$result[$index]['title'] = bg_wp_kses($title);
 			}
 			if (empty ($result[$index]['title']) || $result[$index]['title']=='-') 
 				$result[$index]['title'] = basename($result[$index]['url']);
@@ -314,11 +320,11 @@ function bg_insert_player($content) {
 				preg_match( '#class\s*=\s*([\'\"])[^\'\"]*'.$bg_playlist_option['audioclass'].'[^\'\"]*(\1)#ui', $match[0] )) {
 				if (!isset($offset)) $offset = $match[1];
 				
-				preg_match( '#href\s*=\s*([\'\"])([^\'\"]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[0], $mt );
+				preg_match( '#href\s*=\s*([\'\"])([^(\1)]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[0], $mt );
 				if (!empty ($mt[2])) {
 					$url = trim($mt[2]);
 					if ($url[0] == '/') $url = BG_HTTP_HOST.$url;
-					$song['url'] = esc_url($url);
+					$song['url'] = esc_url_raw($url);
 				}
 				if (!empty ($song['url'])) {
 
@@ -331,7 +337,7 @@ function bg_insert_player($content) {
 							if (!empty ($imt[2])) {
 								$src = $imt[2];
 								if ($src[0] == '/') $src = BG_HTTP_HOST.$src;
-								$image['src'] = esc_url($src);
+								$image['src'] = esc_url_raw($src);
 
 								preg_match( '#width\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $imatch[1], $imt );
 								if (!empty ($imt[2])) $image['width'] = (int) $imt[2];
@@ -342,27 +348,27 @@ function bg_insert_player($content) {
 								$song['image'] = $image;
 							}
 						}
-						$song['caption'] = sanitize_text_field ($text);
+						if ($text{0} != '#') $song['caption'] = bg_wp_kses($text);
 					}
 					preg_match( '#data\-length\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
 					if (!empty ($mt[2])) $song['length'] = (int) $mt[2];
 					
 					preg_match( '#data\-artist\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
-					if (!empty ($mt[2])) $song['artist'] = sanitize_text_field ($mt[2]);
+					if (!empty ($mt[2])) $song['artist'] = bg_wp_kses($mt[2]);
 					
 					preg_match( '#data\-album\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
-					if (!empty ($mt[2])) $song['album'] = sanitize_text_field ($mt[2]);
+					if (!empty ($mt[2])) $song['album'] = bg_wp_kses($mt[2]);
 					else $song['album'] = $post_title;
 					
 					preg_match( '#title\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
-					if (!empty ($mt[2]))  $song['title'] = sanitize_text_field ($mt[2]);
+					if (!empty ($mt[2]))  $song['title'] = bg_wp_kses($mt[2]);
 					if (empty ($song['title'])){
 						if (!empty ($song['caption']))$song['title'] = $song['caption'];
 						else $song['title'] = basename($song['url']);
 					}
 					
 					preg_match( '#alt\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
-					if (!empty ($mt[2])) $song['description'] = sanitize_text_field ($mt[2]);
+					if (!empty ($mt[2])) $song['description'] = bg_wp_kses($mt[2]);
 					
 					if ($single_audio_meta) 
 						$content = str_replace ($match[0], bg_playlist_player (array($song)), $content);
@@ -468,84 +474,108 @@ function bg_playlist_sectotime ($seconds) {
 }
 
 /*****************************************************************************************
+	Обрезает пробельные символы по границам текста 
+	и удаляет неразрешенные теги 
+
+******************************************************************************************/
+function bg_wp_kses ($html) {
+	$allowed_html = array(
+		'em' => array(),
+		'strong' => array(),
+		'i' => array(),
+		'b' => array(),
+		's' => array(),
+		'del' => array(),
+		'sup' => array(),
+		'sub' => array(),
+		'small' => array(),
+		'span' => array(
+			'class' => true,
+			'style' => true,
+		)
+	); 
+	return wp_kses(trim($html), $allowed_html);
+}
+
+/*****************************************************************************************
 
 						КНОПКИ В WISIWYG РЕДАКТОРЕ TinyMCE
 
 ******************************************************************************************/
-
+if (is_admin()) {
 /*****************************************************************************************
 	Кнопка, вставляющая тег <a class="wpaudio" ...>...</a>
 
 ******************************************************************************************/
-function bg_playlist_insert_links($plugin_array){ 
-    $plugin_array['bg_playlist_insert_links'] = plugins_url( 'mce/insert_links/insert_links.js', __FILE__ );
-    return $plugin_array;
-}
+	function bg_playlist_insert_links($plugin_array){ 
+		$plugin_array['bg_playlist_insert_links'] = plugins_url( 'mce/insert_links/insert_links.js', __FILE__ );
+		return $plugin_array;
+	}
 
 /*****************************************************************************************
 	Кнопка, вставляющая шорткод [audiodisk]...[/audiodisk]
 
 ******************************************************************************************/
-function bg_playlist_insert_audiodisk($plugin_array){ 
-    $plugin_array['bg_playlist_insert_audiodisk'] = plugins_url( 'mce/audiodisk/audiodisk.js', __FILE__ );
-    return $plugin_array;
-}
+	function bg_playlist_insert_audiodisk($plugin_array){ 
+		$plugin_array['bg_playlist_insert_audiodisk'] = plugins_url( 'mce/audiodisk/audiodisk.js', __FILE__ );
+		return $plugin_array;
+	}
 
 /*****************************************************************************************
 	Кнопка, вставляющая шорткод [audiodisk src="..."]
 
 ******************************************************************************************/
-function bg_playlist_insert_playlist($plugin_array){ 
-    $plugin_array['bg_playlist_insert_playlist'] = plugins_url( 'mce/playlist/playlist.js', __FILE__ );
-    return $plugin_array;
-}
+	function bg_playlist_insert_playlist($plugin_array){ 
+		$plugin_array['bg_playlist_insert_playlist'] = plugins_url( 'mce/playlist/playlist.js', __FILE__ );
+		return $plugin_array;
+	}
 
 /*****************************************************************************************
 	Добавляем кнопки в список кнопок
 
 ******************************************************************************************/
-function bg_playlist_add_buttons($buttons){
-    array_push($buttons, "|", 
-		"bg_playlist_insert_links", 
-		"bg_playlist_insert_audiodisk",
-		"bg_playlist_insert_playlist"
-	);
-    return $buttons;
-}
+	function bg_playlist_add_buttons($buttons){
+		array_push($buttons, "|", 
+			"bg_playlist_insert_links", 
+			"bg_playlist_insert_audiodisk",
+			"bg_playlist_insert_playlist"
+		);
+		return $buttons;
+	}
 
 /*****************************************************************************************
 	Подключаем кнопки в WISIWYG редакторе
 
 ******************************************************************************************/
-function bg_playlist_custom_buttons(){
-    // проверяем права доступа
-    if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
-        return;
-    // только в режиме WYSIWYG (Rich Editor Mode)
-    if( get_user_option('rich_editing') == 'true'){
-        add_filter('mce_external_plugins', 'bg_playlist_insert_links');
-        add_filter('mce_external_plugins', 'bg_playlist_insert_audiodisk');
-        add_filter('mce_external_plugins', 'bg_playlist_insert_playlist');
-        add_filter('mce_buttons', 'bg_playlist_add_buttons');
-    }
-}
-add_action('init', 'bg_playlist_custom_buttons');
+	function bg_playlist_custom_buttons(){
+		// проверяем права доступа
+		if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
+			return;
+		// только в режиме WYSIWYG (Rich Editor Mode)
+		if( get_user_option('rich_editing') == 'true'){
+			add_filter('mce_external_plugins', 'bg_playlist_insert_links');
+			add_filter('mce_external_plugins', 'bg_playlist_insert_audiodisk');
+			add_filter('mce_external_plugins', 'bg_playlist_insert_playlist');
+			add_filter('mce_buttons', 'bg_playlist_add_buttons');
+		}
+	}
+	add_action('init', 'bg_playlist_custom_buttons');
 
 /*****************************************************************************************
 	Добавляем кнопку Quicktags, вставляющую шорт код [audiodisk]...[/audiodisk]
 	 в текстовый редактор WP
 ******************************************************************************************/
-function bg_audiodisk_custom_quicktags() {
-	if ( wp_script_is( 'quicktags' ) ) {
-	?>
-	<script type="text/javascript">
-	QTags.addButton( 'playlist_audio_disk', 'Audiodisk', '[audiodisk]', '[/audiodisk]', '0', '<?php  _e("Create playlist: select the text and click this button","bg-playlist"); ?>', 1111 ); 
-	</script>
-	<?php
+	function bg_audiodisk_custom_quicktags() {
+		if ( wp_script_is( 'quicktags' ) ) {
+		?>
+		<script type="text/javascript">
+		QTags.addButton( 'playlist_audio_disk', 'Audiodisk', '[audiodisk]', '[/audiodisk]', '0', '<?php  _e("Create playlist: select the text and click this button","bg-playlist"); ?>', 1111 ); 
+		</script>
+		<?php
+		}
 	}
+	add_action( 'admin_print_footer_scripts', 'bg_audiodisk_custom_quicktags' );
 }
-add_action( 'admin_print_footer_scripts', 'bg_audiodisk_custom_quicktags' );
-
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

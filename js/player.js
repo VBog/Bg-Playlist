@@ -2,7 +2,15 @@ jQuery(document).ready(function(){
 	jQuery('div.wp-playlist-item').ready(function () {
 	
 		bg_tooltip();	// Всплывающая подсказка с названием трека
-	
+		
+		// Разрешаем html в caption
+		jQuery('a.wp-playlist-caption').each(function () {
+			caption = jQuery(this).html();
+			caption = caption.replace(/&lt;/g, "<");
+			caption = caption.replace(/&gt;/g, ">");
+			jQuery(this).html(caption);
+		});
+
 /*** НАЧАЛО: Определяем продолжительность трека, если не задано ***/
 		if (bg_playlist.get_duration) {
 			jQuery('div.wp-playlist-item').each(function () {

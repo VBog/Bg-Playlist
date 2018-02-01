@@ -4,11 +4,13 @@
 			title: bg_playlist.btn_audiodisk,
 			image: url + "/img/audiodisk.png",
 			onclick: function() {
-			var content = tinyMCE.activeEditor.selection.getContent();
+			if (tinyMCE.activeEditor.selection.getNode().nodeName == 'A')  
+				var content = tinyMCE.activeEditor.selection.getNode().parentElement.innerHTML;
+			else
+				var content = tinyMCE.activeEditor.selection.getContent();
 				content = '[audiodisk]' + content + '[/audiodisk]';
 				editor.insertContent(content);
 			}
         });
     });
 })();
-
