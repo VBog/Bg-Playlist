@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.3.1
+    Version: 1.4.1
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -37,7 +37,7 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.3.1');
+define('BG_PLAYLIST_VERSION', '1.4.1');
 
 define('BG_HTTP_HOST',((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 
@@ -73,11 +73,14 @@ if (!is_admin()) {
 		wp_enqueue_script( 'bg_playlist_proc', plugins_url( 'js/player.js', __FILE__ ), false, BG_PLAYLIST_VERSION, true );
 		wp_localize_script( 'bg_playlist_proc', 'bg_playlist', 
 			array( 
-				'nonce' 	=> wp_create_nonce('bg-playlist-nonce'),
-				'header'	=> !empty($bg_playlist_option['show_header']),
-				'download'	=> !empty($bg_playlist_option['show_download']),
-				'noloop'	=> !empty($bg_playlist_option['noloop']),
+				'nonce' 		=> wp_create_nonce('bg-playlist-nonce'),
+				'header'		=> !empty($bg_playlist_option['show_header']),
+				'download'		=> !empty($bg_playlist_option['show_download']),
+				'play_pause'	=> !empty($bg_playlist_option['show_play_pause']),
+				'noloop'		=> !empty($bg_playlist_option['noloop']),
 				'get_duration'	=> !empty($bg_playlist_option['get_duration']),
+				'title_play'	=> __('Play', 'bg-playlist'),
+				'title_pause'	=> __('Pause', 'bg-playlist'),
 			) 
 		);
 	}
@@ -133,7 +136,8 @@ if (!is_admin()) {
 		global $bg_playlist_option;
 		
 		wp_enqueue_style( "bg_playlist_styles", plugins_url( "css/player.css", __FILE__ ), array() , BG_PLAYLIST_VERSION  );
-		wp_enqueue_style( "bg_playlist_skin", $bg_playlist_option['skin'], array() , BG_PLAYLIST_VERSION  );
+		if ($bg_playlist_option['skin'])
+			wp_enqueue_style( "bg_playlist_skin", $bg_playlist_option['skin'], array() , BG_PLAYLIST_VERSION  );
 	}
 	add_action( 'wp_enqueue_scripts' , 'bg_playlist_enqueue_frontend_styles' );
 }
@@ -223,7 +227,7 @@ function bg_m3u_parse ($src) {
 					$item = BG_HTTP_HOST.$item;
 				}
 			}
-			$result[$index]['url'] = esc_url_raw($item);
+			$result[$index]['url'] = $item;
 			
 			$item = trim(substr($match['text'][$i], 1));
 			if (strchr($item, '-') === false) {
@@ -273,7 +277,7 @@ function bg_pls_parse ($src) {
 					$item = BG_HTTP_HOST.$item;
 				}
 			}
-			$result[$index]['url'] = esc_url_raw($item);
+			$result[$index]['url'] = $item;
 			
 			preg_match('/(?:Title'.$result[$index]['num'].'=)\s*(?:(?P<text>[^\r\n]+))/i', $content, $mt );
 			$item = $mt['text'];
@@ -321,23 +325,21 @@ function bg_insert_player($content) {
 				if (!isset($offset)) $offset = $match[1];
 				
 				preg_match( '#href\s*=\s*([\'\"])([^(\1)]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[0], $mt );
-				if (!empty ($mt[2])) {
-					$url = trim($mt[2]);
+				$url = trim($mt[2]);
+				if (!empty ($url)) {
 					if ($url[0] == '/') $url = BG_HTTP_HOST.$url;
-					$song['url'] = esc_url_raw($url);
-				}
-				if (!empty ($song['url'])) {
+					$song['url'] = $url;
 
-					preg_match( '#(?:<a[^>]*>)(.*?)(?:<\/a>)#', $match[0], $mt );
+					preg_match( '#(?:<a[^>]*>)([\s\S]*?)(?:<\/a>)#', $match[0], $mt );
 					if (!empty ($mt[1])) {
 						$text = $mt[1];
 						preg_match( '#(?:<img)([^>]*)(?:>)#', $text, $imatch );
 						if (!empty ($imatch[1])) {
 							preg_match( '#src\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $imatch[1], $imt );
-							if (!empty ($imt[2])) {
-								$src = $imt[2];
+							$src = $imt[2];
+							if (!empty ($src)) {
 								if ($src[0] == '/') $src = BG_HTTP_HOST.$src;
-								$image['src'] = esc_url_raw($src);
+								$image['src'] = $src;
 
 								preg_match( '#width\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $imatch[1], $imt );
 								if (!empty ($imt[2])) $image['width'] = (int) $imt[2];
@@ -408,7 +410,7 @@ function bg_playlist_player ($playlist) {
         'type' => 'audio',
         // don't pass strings to JSON, will be truthy in JS
         'tracklist' => isset($option['show_list']),			// Наличие списка треков
-        'tracknumbers' => isset($option['show_numbers']),	// Нумерация списка треков
+        'tracknumbers' => isset($option['show_numbers'])&&(count($playlist)>1),	// Нумерация списка треков
         'images' => isset($option['show_image']),			// Наличие миниатюры у трека (задается в $track['image'])
         'artists' => isset($option['show_artist']),			// Выводить имя артиста (задается в $track['artist'])
     );
@@ -444,20 +446,23 @@ function bg_playlist_player ($playlist) {
 		$tracks[] = $track;
     }
     $data['tracks'] = $tracks;		// Данные о треках плейлиста
+	ob_start();
 	// Включаем проигрыватель аудио со светлой/темной темой
 	do_action( 'wp_playlist_scripts', 'audio', $option['style'] );
 
 	// Формируем код проигрывателя на экране
-	$player = '
+?>	
 <div class="wp-playlist wp-audio-playlist wp-playlist-'.$option['style'].'">
 	<div class="wp-playlist-current-item"></div>
-    <audio controls="controls" preload="'.$option['preload'].'" width="'. (int) $theme_width .'"></audio>
+    <audio controls="controls" preload="<?php echo $option['preload']; ?>" width="<?php echo (int) $theme_width; ?>"></audio>
     <div class="wp-playlist-next"></div>
     <div class="wp-playlist-prev"></div>
-    <script type="application/json" class="wp-playlist-script">'. wp_json_encode( $data ) .'</script>
-</div>';
+    <script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $data ); ?></script>
+</div>
+<?php
+ 
+	return ob_get_clean();
 
-    return $player;
 }
 
 /*****************************************************************************************
@@ -577,6 +582,64 @@ if (is_admin()) {
 	add_action( 'admin_print_footer_scripts', 'bg_audiodisk_custom_quicktags' );
 }
 
+
+/*****************************************************************************************
+	Находим в тексте поста ссылки на аудио файлы
+	определяем продолжительност и вставляем 
+	атрибут data-length в тег <a> 
+******************************************************************************************/
+if (!is_admin()) require_once ABSPATH . 'wp-admin/includes/media.php';
+function bg_insert_duration($content) {
+	$content = preg_replace_callback('/<a([^>]*?)>/is', 
+	function ($match) {
+		global $bg_playlist_option;
+		$site_url = get_site_url()."/";
+		$length = "";
+		if ((!$bg_playlist_option['audioclass'] ||
+			preg_match( '#class\s*=\s*([\'\"])[^\'\"]*'.$bg_playlist_option['audioclass'].'[^\'\"]*(\1)#ui', $match[1] )) &&
+			!preg_match( '#data-length#ui', $match[1] )) {
+			
+			preg_match( '#href\s*=\s*([\'\"])([^(\1)]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[1], $mt );
+			$url = trim($mt[2]);
+			if (!empty ($url)) {
+				if ($url{0} == '/') $url = BG_HTTP_HOST.$url;	// преобразуем относительный путь к абсолютному
+				// Проверяем с этого ли сайта файл
+				if (!strncasecmp ( $url , $site_url , strlen($site_url) )) {
+					// Меняем URL на полный путь
+					$file = ABSPATH.str_replace($site_url, "", $url ); 
+					// Получаем метаданные из файла
+					$metadata = wp_read_audio_metadata( $file );
+					if (!empty($metadata) && !empty($metadata['length']))
+						$length = ' data-length="'.$metadata['length'].'"';
+				}
+			}
+		}
+		return '<a'.$match[1].$length.'>';	
+	}, $content);
+	
+	return $content; 
+}
+if (is_admin())	{
+	// Функция вставляет продолжительность трека при сохранении поста
+	function bg_playlist_save( $post_id) {
+		if ( !wp_is_post_revision( $post_id ) ){
+			$post = get_post($post_id);
+			// удаляем этот хук, чтобы он не создавал бесконечного цикла
+			remove_action('save_post', 'bg_playlist_save');
+
+			// обновляем пост, тогда снова вызовется хук save_post
+			$content = bg_insert_duration($post->post_content);
+			$res = wp_update_post(  wp_slash( array( 'ID' => $post->ID, 'post_content' => $content ) ) );
+
+			// снова вешаем хук
+			add_action('save_post', 'bg_playlist_save');
+			
+			return $res;
+		}
+	}
+	add_action( 'save_post', 'bg_playlist_save' );
+}
+	
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 									СЛУЖЕБНЫЕ ФУНКЦИИ
@@ -625,6 +688,7 @@ function bg_check_wpaudio($content) {
 	global $bg_playlist_option;
 
 	$warning = false;
+	$li = 0;
 	if ( preg_match_all( '#<(?P<tag>a)[^<]*?(?:>[\s\S]*?<\/(?P=tag)>|\s*\/>)#', $content, $matches, PREG_OFFSET_CAPTURE ) ) {
 		foreach ( $matches[0] as $match ) {
 			if (preg_match( '#class\s*=\s*([\'\"])'.$bg_playlist_option['audioclass'].'(\1)#ui', $match[0] )) {
@@ -633,6 +697,7 @@ function bg_check_wpaudio($content) {
 				preg_match( '#href\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
 				
 				if (isset($finish)) {
+					$li = $li + substr_count($content, 'li>', $finish, $match[1]-$finish);
 					$wrn = trim (html_entity_decode (strip_tags(substr($content, $finish, $match[1]-$finish))));
 					if ($wrn) $warning .= htmlspecialchars($wrn)."<font color='red'><b> || </b></font>";
 				} 
@@ -641,6 +706,8 @@ function bg_check_wpaudio($content) {
 		}
 	}
 	
-	return ($warning?("<p>"." <b>".__('The page is need for revision.','bg-playlist')." </b>".__('Text can be lost:','bg-playlist')."<br>".$warning."</p>"):""); //Страница ожидает доработки.</b> Будет потерян текст:
-}
+	$quote =($warning?("<p> <b>".__('The page is need for revision.','bg-playlist')." </b>".__('Text can be lost:','bg-playlist')."<br>".$warning."</p>"):""); //Страница ожидает доработки. Будет потерян текст:
+	$quote .=($li?("<p> <b>".__('The page is need for revision.','bg-playlist')." </b><font color='red'><b>".$li.__(' li-tags inside tracks','bg-playlist')."</b></font><br></p>"):""); //Страница ожидает доработки. Теги li внутри треков
 
+	return $quote;
+}

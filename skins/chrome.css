@@ -1,7 +1,13 @@
 /*** НАЧАЛО: внешний вид аудиопроигрывателя ***/
+.wp-playlist-trigger-pause {
+	background-image: url('pause.png');
+}
+.wp-playlist-trigger-play {
+	background-image: url('play.png');
+}
 
 /* Ни каких отступов в теле плеера! */
-div .mejs-controls{
+div .wp-playlist{
     text-indent: 0px;
 }
 /* Все ссылки как нормальный текст */
@@ -108,6 +114,9 @@ div:hover.wp-playlist-item {
 	background:  #edecec !important;
 }
 
+a.wp-playlist-caption {
+	margin-right: 6px !important;
+}
 .wp-playlist-playing a,
 .wp-playlist-playing a span {
 	font-weight: bold !important;

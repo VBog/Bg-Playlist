@@ -72,6 +72,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field15', __('Show artists','bg-playlist'), 'fill_bg_playlist_field15', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field16', __('Show album name','bg-playlist'), 'fill_bg_playlist_field16', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field17', __('Show Download button','bg-playlist'), 'fill_bg_playlist_field17', 'bg_playlist_page2', 'section_id' );
+	add_settings_field('bg_playlist_field27', __('Show Play/Pause button','bg-playlist'), 'fill_bg_playlist_field27', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field18', __('Style','bg-playlist'), 'fill_bg_playlist_field18', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field19', __('Skin','bg-playlist'), 'fill_bg_playlist_field19', 'bg_playlist_page2', 'section_id' );
 
@@ -180,6 +181,14 @@ function fill_bg_playlist_field17(){
 	<label><input type="checkbox" name="bg_playlist_options2[show_download]" value="1" <?php checked( 1, $val ) ?> /> </label>
 	<?php
 }
+## Заполняем опцию 27
+function fill_bg_playlist_field27(){
+	$val = get_option('bg_playlist_options2');
+	$val = (!empty($val) && isset($val['show_play_pause'])) ? $val['show_play_pause'] : null;
+	?>
+	<label><input type="checkbox" name="bg_playlist_options2[show_play_pause]" value="1" <?php checked( 1, $val ) ?> /> </label>
+	<?php
+}
 ## Заполняем опцию 18
 function fill_bg_playlist_field18(){
 	$val = get_option('bg_playlist_options2');
@@ -249,6 +258,9 @@ function bg_playlist_sanitize_callback( $options ){
 		if( $name == 'show_download' )
 			$val = intval( $val );
 
+		if( $name == 'show_play_pause' )
+			$val = intval( $val );
+
 		if( $name == 'style' ) {
 			$val = sanitize_html_class( $val );
 			if (!$val) $val = 'light';
@@ -279,6 +291,7 @@ function bg_playlist_get_option() {
 				'show_artist'=>1,
 				'show_album'=>1,
 				'show_download'=>1,
+				'show_play_pause'=>1,
 				'style'=>'light',
 				'skin'=>'',
 		) 

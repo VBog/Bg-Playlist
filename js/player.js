@@ -1,7 +1,8 @@
 jQuery(document).ready(function(){
-	jQuery('div.wp-playlist-item').ready(function () {
+	jQuery('div.wp-playlist').ready(function () {
 	
-		bg_tooltip();	// Всплывающая подсказка с названием трека
+		// Всплывающая подсказка с названием трека
+		bg_tooltip();
 		
 		// Разрешаем html в caption
 		jQuery('a.wp-playlist-caption').each(function () {
@@ -10,6 +11,46 @@ jQuery(document).ready(function(){
 			caption = caption.replace(/&gt;/g, ">");
 			jQuery(this).html(caption);
 		});
+
+/*** НАЧАЛО: Кнопка триггера Play/Pause ***/
+		if (bg_playlist.play_pause) {
+			jQuery(function () {
+				// Добавляем кнопку
+				jQuery('div.wp-playlist:first').parent('div').append('<div id="wp-playlist-trigger"></div>');
+				if (parseInt(jQuery('div#wp-playlist-trigger').css('right')) < 10) 
+					jQuery('div#wp-playlist-trigger').css('right', '10px');
+				
+				jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-play');
+				jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_play);
+				// Определяем активный плеер
+				player = jQuery('.mejs-mediaelement audio').first(); // Сначала первый
+				// Воспроизведение
+				jQuery('.mejs-mediaelement audio').on ('play', function () {
+					player = jQuery(this);
+					// Меняем изображение кнопки
+					jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-pause');
+					jQuery('div#wp-playlist-trigger').removeClass('wp-playlist-trigger-play');
+					jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_pause);
+				});
+				// Пауза
+				jQuery('.mejs-mediaelement audio').on ('pause', function () {
+					player = jQuery(this);
+					// Меняем изображение кнопки
+					jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-play');
+					jQuery('div#wp-playlist-trigger').removeClass('wp-playlist-trigger-pause');
+					jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_play);
+				});
+				// Нажали на кнопку
+				jQuery('div#wp-playlist-trigger').on ('click', function () {
+					if(player[0].paused) {
+						player[0].play();
+					} else {
+						player[0].pause();
+					}
+				});
+			});
+		}
+/*** КОНЕЦ: Кнопка триггера Play/Pause ***/
 
 /*** НАЧАЛО: Определяем продолжительность трека, если не задано ***/
 		if (bg_playlist.get_duration) {
