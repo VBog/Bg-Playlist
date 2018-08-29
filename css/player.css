@@ -52,7 +52,7 @@ div:hover.wp-playlist-item-download {
 	display: inline-block;
 	width: -webkit-calc(100% - 36px);
     width: calc(100% - 36px);
-	height: 32px;
+	height: 27px;
 	float: left;
 }
 .wp-playlist-item a {
@@ -65,7 +65,6 @@ div:hover.wp-playlist-item-download {
 }
 
 /*** КОНЕЦ: Внедряем кнопку загрузки трека ***/
-
 
 /*** НАЧАЛО: Всплывающая подсказка для ссылок ***/
 #tooltip {
