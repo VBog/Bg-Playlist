@@ -18,21 +18,54 @@ div#wp-playlist-trigger {
 }
 /*** КОНЕЦ: Внедряем кнопку Play/Pause ***/
 
+/*** НАЧАЛО: Внедряем кнопки Prev и Next ***/
+div#wp-playlist-next {
+	position: fixed;
+	width: 48px;
+	height: 48px;
+	top: 10px;
+	right: 58px;
+	background-color: transparent;
+	background-size: contain;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	background-image: url('next.png');
+}
+div#wp-playlist-prev {
+	position: fixed;
+	width: 48px;
+	height: 48px;
+	top: 10px;
+	right: 106px;
+	background-color: transparent;
+	background-size: contain;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	background-image: url('prev.png');
+}
+/*** КОНЕЦ: Внедряем кнопку Play/Pause ***/
+
 /*** НАЧАЛО: Внедряем кнопку загрузки трека ***/
-div.wp-playlist-item-download {
+.wp-playlist-tracks {
+	font-size: 0px;
+	line-height: 0;
+}
+div.wp-playlist-item-download, 
+div.wp-playlist-item-blank {
 	width: 24px;
-	height: 32px;
+	height: 27px;
 	display: inline-block;
 	margin: 0px;
 	border: 0px;
 	padding: 0px;
 	margin-left: 4px;
+	font-size: 14px;
 }
 .wp-playlist-item-download input[type="button"] {
 	border-radius: 5px;
 	width: 18px;
 	height: 24px;
-	margin:  4px 3px;
+	margin: 4px 3px 0px 3px;
 	border: 0px;
 	padding: 0px;
 	cursor: pointer;
@@ -49,10 +82,13 @@ div:hover.wp-playlist-item-download {
 	background:  #edecec;
 }
 .wp-playlist-item {
-	display: inline-block;
-	width: -webkit-calc(100% - 36px);
-    width: calc(100% - 36px);
 	height: 27px;
+	font-size: 14px;
+}
+.wp-playlist-item-inline {
+	display: inline-block;
+	width: -webkit-calc(100% - 28px);
+    width: calc(100% - 28px);
 	float: left;
 }
 .wp-playlist-item a {
@@ -67,6 +103,7 @@ div:hover.wp-playlist-item-download {
 /*** КОНЕЦ: Внедряем кнопку загрузки трека ***/
 
 /*** НАЧАЛО: Всплывающая подсказка для ссылок ***/
+.message,
 #tooltip {
     background: rgba(250, 250, 250, 0.99) none repeat scroll 0 0;
     border-radius: 3px;
@@ -78,4 +115,35 @@ div:hover.wp-playlist-item-download {
     text-indent: -14px;
     z-index: 100;
 }
+.message {
+	width: 320px;
+	left: 50%;
+	margin-left: -160px;
+    text-align: center;
+}
 /*** КОНЕЦ: Всплывающая подсказка для ссылок ***/
+
+.bg_download_m3u {
+	background: url(m3u.svg) no-repeat scroll 0 0 transparent;
+    white-space: nowrap;
+    width: 24px;
+    height: 24px;
+	line-height: 24px;
+	margin: 3px 0px;
+}
+.bg_download_m3u a {
+    padding-left: 30px;
+}
+
+div.wait_pls {
+	position: fixed;
+    left: 50%;
+    top: 50%;
+	width: 150px;
+	height: 150px; 
+    transform: translate(-50%,-50%);
+    z-index: 1100; 
+	margin:0px;
+    padding: 0px; 
+    background: url("wait.gif") 50% 50% no-repeat;
+}

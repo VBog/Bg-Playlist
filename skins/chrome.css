@@ -5,6 +5,12 @@
 .wp-playlist-trigger-play {
 	background-image: url('play.png');
 }
+div#wp-playlist-next {
+	background-image: url('next.png');
+}
+div#wp-playlist-prev {
+	background-image: url('prev.png');
+}
 
 /* Ни каких отступов в теле плеера! */
 div .wp-playlist{
@@ -140,4 +146,11 @@ a.wp-playlist-caption {
 div.wp-playlist {
 	border-radius: 5px;
 }
+
+/* Иконка ссылки загрузки M3U  */
+.bg_download_m3u {
+	background: url(m3u.svg) no-repeat scroll 0 0 transparent;
+}
+
 /*** КОНЕЦ: внешний вид аудиопроигрывателя ***/
+

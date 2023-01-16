@@ -57,6 +57,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field3', __('Preload audiofile','bg-playlist'), 'fill_bg_playlist_field3', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field4', __('Disable playlist looping','bg-playlist'), 'fill_bg_playlist_field4', 'bg_playlist_page1', 'section_id' );
 	add_settings_field('bg_playlist_field5', __('Get duration from audiofile','bg-playlist'), 'fill_bg_playlist_field5', 'bg_playlist_page1', 'section_id' );
+	add_settings_field('bg_playlist_field6', __('Forward/rewind step','bg-playlist'), 'fill_bg_playlist_field6', 'bg_playlist_page1', 'section_id' );
 
 	// параметры: $option_group, $option_name, $sanitize_callback
 	register_setting( 'bg_playlist_option_group2', 'bg_playlist_options2', 'bg_playlist_sanitize_callback' );
@@ -73,6 +74,7 @@ function bg_playlist_plugin_settings(){
 	add_settings_field('bg_playlist_field16', __('Show album name','bg-playlist'), 'fill_bg_playlist_field16', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field17', __('Show Download button','bg-playlist'), 'fill_bg_playlist_field17', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field27', __('Show Play/Pause button','bg-playlist'), 'fill_bg_playlist_field27', 'bg_playlist_page2', 'section_id' );
+	add_settings_field('bg_playlist_field28', __('Show M3U playlist','bg-playlist'), 'fill_bg_playlist_field28', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field18', __('Style','bg-playlist'), 'fill_bg_playlist_field18', 'bg_playlist_page2', 'section_id' );
 	add_settings_field('bg_playlist_field19', __('Skin','bg-playlist'), 'fill_bg_playlist_field19', 'bg_playlist_page2', 'section_id' );
 
@@ -121,6 +123,15 @@ function fill_bg_playlist_field5(){
 	?>
 	<label><input type="checkbox" name="bg_playlist_options1[get_duration]" value="1" <?php checked( 1, $val ) ?> /> </label>
 	<?php _e('(If the length of the track isn\'t set, try to get metadata from the audiofile).','bg-playlist');
+}
+
+## Заполняем опцию 6
+function fill_bg_playlist_field6(){
+	$val = get_option('bg_playlist_options1');
+	$val = (!empty($val) && isset($val['step'])) ? $val['step'] : '30';
+	?>
+	<label><input type="number" name="bg_playlist_options1[step]" value="<?php echo $val?>" min="0" /> <?php _e('sec.','bg-playlist'); ?></label>
+	<?php
 }
 
 ###############################################################
@@ -187,6 +198,14 @@ function fill_bg_playlist_field27(){
 	$val = (!empty($val) && isset($val['show_play_pause'])) ? $val['show_play_pause'] : null;
 	?>
 	<label><input type="checkbox" name="bg_playlist_options2[show_play_pause]" value="1" <?php checked( 1, $val ) ?> /> </label>
+	<?php
+}
+## Заполняем опцию 28
+function fill_bg_playlist_field28(){
+	$val = get_option('bg_playlist_options2');
+	$val = (!empty($val) && isset($val['show_m3u_playlist'])) ? $val['show_m3u_playlist'] : null;
+	?>
+	<label><input type="checkbox" name="bg_playlist_options2[show_m3u_playlist]" value="1" <?php checked( 1, $val ) ?> /> </label>
 	<?php
 }
 ## Заполняем опцию 18

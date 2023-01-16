@@ -2,7 +2,7 @@
 /* 
     Plugin Name: Bg Playlist 
     Description: The plugin creates the WP playlist using links to audio files in the posts.
-    Version: 1.4.2
+    Version: 1.5.6
     Author: VBog
     Author URI: https://bogaiskov.ru 
 	License:     GPL2
@@ -10,7 +10,7 @@
 	Domain Path: /languages
 */
 
-/*  Copyright 2018  Vadim Bogaiskov  (email: vadim.bogaiskov@gmail.com)
+/*  Copyright 2018-2023  Vadim Bogaiskov  (email: vadim.bogaiskov@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,7 +37,17 @@ if ( !defined('ABSPATH') ) {
 	die( 'Sorry, you are not allowed to access this page directly.' ); 
 }
 
-define('BG_PLAYLIST_VERSION', '1.4.2');
+define('BG_PLAYLIST_VERSION', '1.5.6');
+
+$upload_dir = wp_upload_dir();
+define( 'BG_PLAYLIST_URI', plugin_dir_path( __FILE__ ) );
+define( 'BG_PLAYLIST_PATH', str_replace ( ABSPATH , '' , BG_PLAYLIST_URI ) );
+define( 'BG_PLAYLIST_STORAGE', 'bg_playlist' );
+define( 'BG_PLAYLIST_STORAGE_URL', $upload_dir['baseurl'] ."/". BG_PLAYLIST_STORAGE );
+define( 'BG_PLAYLIST_STORAGE_URI', $upload_dir['basedir'] ."/". BG_PLAYLIST_STORAGE );
+define( 'BG_PLAYLIST_STORAGE_PATH', str_replace ( ABSPATH , '' , BG_PLAYLIST_STORAGE_URI  ) );
+
+if (!file_exists(BG_PLAYLIST_STORAGE_URI)) @mkdir( BG_PLAYLIST_STORAGE_URI );
 
 define('BG_HTTP_HOST',((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 
@@ -79,8 +89,13 @@ if (!is_admin()) {
 				'play_pause'	=> !empty($bg_playlist_option['show_play_pause']),
 				'noloop'		=> !empty($bg_playlist_option['noloop']),
 				'get_duration'	=> !empty($bg_playlist_option['get_duration']),
+				'step'			=> !empty($bg_playlist_option['step'])?$bg_playlist_option['step']:'30',
 				'title_play'	=> __('Play', 'bg-playlist'),
 				'title_pause'	=> __('Pause', 'bg-playlist'),
+				'title_next'	=> __('Forward', 'bg-playlist'),
+				'title_prev'	=> __('Back', 'bg-playlist'),
+				'url_to_clipboard' => __('Copy M3U-playlist URL to clipboard', 'bg-playlist'),
+				'already_copied'=> __('Playlist URL copied into clipboard', 'bg-playlist'),
 			) 
 		);
 	}
@@ -168,7 +183,7 @@ function bg_audiodisk_sortcode( $atts, $content = null ) {
 	$playlist = false;
 	if ($src) {
 		if (!preg_match('#https?:\/\/#', $src)) {	// Относительный путь
-			if ($src{0} != '/') $src = '/'.$src;
+			if ($src[0] != '/') $src = '/'.$src;
 			$src = site_url($src);
 		}	
 		$ext = substr(strrchr($src, '.'), 1);
@@ -201,7 +216,9 @@ add_shortcode( 'audiodisk', 'bg_audiodisk_sortcode' );
 ******************************************************************************************/
 function bg_m3u_parse ($src) {
 
-	$content = @file_get_contents ($src);
+	$filename = str_replace (site_url().'/', ABSPATH, $src);
+	$content = @file_get_contents ($filename);
+	$content = bg_playlist_removeBOM($content);
 	if (!$content || (substr($content, 0, 7) != '#EXTM3U')) return $src." - ".__('Playlist not found or corrupt file.','bg-playlist'). PHP_EOL ; 
 
 	preg_match_all('/(?:(?P<tag>#EXTINF:)(?P<length>\s*\-?\d+))\s*(?:(?P<text>,[^\r\n]+)\r?\n(?P<url>[^\s]+))/', $content, $match );
@@ -220,7 +237,7 @@ function bg_m3u_parse ($src) {
 
 			$item = trim($match['url'][$i]);
 			if (!preg_match('#https?:\/\/#', $item)) {	// Относительный путь
-				if ($item{0} != '/') {					// относительно плейлиста 
+				if ($item[0] != '/') {					// относительно плейлиста 
 					$path = str_replace(basename($src), "", $src);
 					$item = $path.$item;
 				} else {								// относительно корня сайта
@@ -253,7 +270,9 @@ function bg_m3u_parse ($src) {
 ******************************************************************************************/
 function bg_pls_parse ($src) {
 
-	$content = @file_get_contents ($src);
+	$filename = str_replace (site_url(), ABSPATH, $src);
+	$content = @file_get_contents ($filename);
+	$content = bg_playlist_removeBOM($content);
 	if (!$content || (substr($content, 0, 10) != '[playlist]')) return $src." - ".__('Playlist not found or corrupt file.','bg-playlist'). PHP_EOL ;
 
 	preg_match_all('/(?:File(?P<num>\d+)=)\s*(?:(?P<text>[^\r\n]+))/i', $content, $match );
@@ -270,7 +289,7 @@ function bg_pls_parse ($src) {
 			$result[$index]['num'] = (int) trim($match['num'][$i]);
 
 			if (!preg_match('#https?:\/\/#', $item)) {	// Относительный путь
-				if ($item{0} != '/') {					// относительно плейлиста 
+				if ($item[0] != '/') {					// относительно плейлиста 
 					$path = str_replace(basename($src), "", $src);
 					$item = $path.$item;
 				} else {								// относительно корня сайта
@@ -308,9 +327,10 @@ function bg_pls_parse ($src) {
 	Находим в тексте поста ссылки на аудио файлы
 	и вставляем вместо них плейлист 
 ******************************************************************************************/
-function bg_insert_player($content) {
+function bg_insert_player($content, $playlist_number = 0) {
 	global $bg_playlist_option;
 	
+
 	if ( preg_match_all( '#<(?P<tag>a)[^<]*?(?:>[\s\S]*?<\/(?P=tag)>|\s*\/>)#', $content, $matches, PREG_OFFSET_CAPTURE ) ) {
 		global $wp_query;
 		$post_id = $wp_query->post->ID;
@@ -350,7 +370,7 @@ function bg_insert_player($content) {
 								$song['image'] = $image;
 							}
 						}
-						if ($text{0} != '#') $song['caption'] = bg_wp_kses($text);
+						if ($text[0] != '#') $song['caption'] = bg_wp_kses($text);
 					}
 					preg_match( '#data\-length\s*=\s*([\'\"])([^\'\"]*)(\1)#ui', $match[0], $mt );
 					if (!empty ($mt[2])) $song['length'] = (int) $mt[2];
@@ -446,6 +466,10 @@ function bg_playlist_player ($playlist) {
 		$tracks[] = $track;
     }
     $data['tracks'] = $tracks;		// Данные о треках плейлиста
+	
+	if (isset($option['show_m3u_playlist'])) $m3u = bg_m3u_generate ($playlist);
+	else $m3u = false;
+	
 	ob_start();
 	// Включаем проигрыватель аудио со светлой/темной темой
 	do_action( 'wp_playlist_scripts', 'audio', $option['style'] );
@@ -453,20 +477,71 @@ function bg_playlist_player ($playlist) {
 	// Формируем код проигрывателя на экране
 ?>	
 <!-- Playlist START -->
-<div class="wp-playlist wp-audio-playlist wp-playlist-'.$option['style'].'">
+<div class="wp-playlist wp-audio-playlist wp-playlist-<?php echo $option['style']; ?>">
 	<div class="wp-playlist-current-item"></div>
     <audio controls="controls" preload="<?php echo $option['preload']; ?>" width="<?php echo (int) $theme_width; ?>"></audio>
     <div class="wp-playlist-next"></div>
     <div class="wp-playlist-prev"></div>
     <script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $data ); ?></script>
 </div>
+<?php if ($m3u):  ?>
+<div class="bg_download_m3u"><a href="<?php echo BG_PLAYLIST_STORAGE_URL."/".$m3u[0]; ?>" download="<?php echo $m3u[1]; ?>.m3u"><?php  _e("Download M3U playlist","bg-playlist"); ?></a></div>
+<?php endif;  ?>
 <!-- Playlist END -->
 <?php
- 
 	return ob_get_clean();
 
 }
-
+/*****************************************************************************************
+	Создадим плейлист формата m3u
+	
+******************************************************************************************/
+function bg_m3u_create ($playlist, $stream=true) {
+	if (empty($playlist)) return "";
+	
+	$content = "#EXTM3U". PHP_EOL . PHP_EOL;
+    foreach ( $playlist as $song ) {
+		$url = $song['url'];
+		$name = basename($url,".mp3");
+		$filename = rawurlencode(basename($url));
+		$url = str_replace(basename($url), $filename, $url);
+		
+		$content .= "#EXTINF:".
+					(empty($song['length'])?"-1":$song['length']).",".
+					(empty($song['artist'])?"":(strip_tags(html_entity_decode ($song['artist']))." - ")).
+					(empty($song['title'])?$name:strip_tags(html_entity_decode ($song['title']))).PHP_EOL;
+		if ($stream) $content .= $url.PHP_EOL;
+		else $content .= $filename.PHP_EOL;
+		$content .= PHP_EOL;
+	}
+	return $content;
+}
+/*****************************************************************************************
+	Запишем плейлист формата m3u в файл
+	
+******************************************************************************************/
+function bg_m3u_generate ($playlist) {
+	global $post;
+	static $bg_playlist_number = array();
+	
+//	return false;	// Заглушка 
+	$m3u = bg_m3u_create ($playlist);
+	if (empty($m3u)) return false;
+	
+	if (empty($bg_playlist_number[$post->ID]))$bg_playlist_number[$post->ID] = 0;
+	$post_modified_date = get_the_modified_date( 'U' );
+	$file = BG_PLAYLIST_STORAGE_URI."/".$post->ID.($bg_playlist_number[$post->ID]?"_".($bg_playlist_number[$post->ID]+1):"").".m3u";
+	// Если файл не существует или время модификации поста больше времени создания файла,
+	// создадим файл плейлиста
+	if (!file_exists ($file) || $post_modified_date > filectime($file)) {
+		$fp = fopen($file, "w"); 
+		fwrite($fp, $m3u);
+		fclose($fp);
+	}
+	$file_title = esc_html( $post->post_title ).($bg_playlist_number[$post->ID]?" ".($bg_playlist_number[$post->ID]+1):"");
+	$bg_playlist_number[$post->ID]++;
+	return array(basename($file), $file_title);
+}
 /*****************************************************************************************
 	Переводит секунды в часы, минуты, секунды
 
@@ -604,7 +679,7 @@ function bg_insert_duration($content) {
 			preg_match( '#href\s*=\s*([\'\"])([^(\1)]*(mp3|m4a|ogg|wav)\s*)(\1)#ui', $match[1], $mt );
 			$url = trim($mt[2]);
 			if (!empty ($url)) {
-				if ($url{0} == '/') $url = BG_HTTP_HOST.$url;	// преобразуем относительный путь к абсолютному
+				if ($url[0] == '/') $url = BG_HTTP_HOST.$url;	// преобразуем относительный путь к абсолютному
 				// Проверяем с этого ли сайта файл
 				if (!strncasecmp ( $url , $site_url , strlen($site_url) )) {
 					// Меняем URL на полный путь
@@ -712,4 +787,16 @@ function bg_check_wpaudio($content) {
 	$quote .=($li?("<p> <b>".__('The page is need for revision.','bg-playlist')." </b><font color='red'><b>".$li.__(' li-tags inside tracks','bg-playlist')."</b></font><br></p>"):""); //Страница ожидает доработки. Теги li внутри треков
 
 	return $quote;
+}
+
+/********************************************************
+	Удалить BOM из строки
+	@param string $str - исходная строка
+	@return string $str - строка без BOM
+********************************************************/
+function bg_playlist_removeBOM($str="") {
+    if(substr($str, 0, 3) == pack('CCC', 0xef, 0xbb, 0xbf)) {
+        $str = substr($str, 3);
+    }
+    return $str;
 }

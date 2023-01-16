@@ -3,14 +3,14 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: Bg Playlist\n"
-"POT-Creation-Date: 2018-02-04 21:43+0300\n"
+"POT-Creation-Date: 2019-07-25 14:18+0300\n"
 "PO-Revision-Date: 2018-01-22 21:33+0300\n"
 "Last-Translator: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "Language-Team: Vadim Bogaiskov <vadim.bogaiskov@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2.3\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: bg_playlist.php\n"
@@ -21,104 +21,128 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: bg_playlist.php:82
+#: bg_playlist.php:93
 msgid "Play"
 msgstr ""
 
-#: bg_playlist.php:83
+#: bg_playlist.php:94
 msgid "Pause"
 msgstr ""
 
-#: bg_playlist.php:99 bg_playlist.php:119
+#: bg_playlist.php:95
+msgid "Forward"
+msgstr ""
+
+#: bg_playlist.php:96
+msgid "Back"
+msgstr ""
+
+#: bg_playlist.php:97
+msgid "Copy M3U-playlist URL to clipboard"
+msgstr ""
+
+#: bg_playlist.php:98
+msgid "Playlist URL copied into clipboard"
+msgstr ""
+
+#: bg_playlist.php:114 bg_playlist.php:134
 msgid "Insert audiolink"
 msgstr ""
 
-#: bg_playlist.php:100
+#: bg_playlist.php:115
 msgid "Audiolink atributes"
 msgstr ""
 
-#: bg_playlist.php:101
+#: bg_playlist.php:116
 msgid "Image atributes"
 msgstr ""
 
-#: bg_playlist.php:103
+#: bg_playlist.php:118
 msgid "class"
 msgstr ""
 
-#: bg_playlist.php:104 bg_playlist.php:112
+#: bg_playlist.php:119 bg_playlist.php:127
 msgid "URL"
 msgstr ""
 
-#: bg_playlist.php:105
+#: bg_playlist.php:120
 msgid "Title"
 msgstr ""
 
-#: bg_playlist.php:106
+#: bg_playlist.php:121
 msgid "Discription"
 msgstr ""
 
-#: bg_playlist.php:107
+#: bg_playlist.php:122
 msgid "Artist"
 msgstr ""
 
-#: bg_playlist.php:108
+#: bg_playlist.php:123
 msgid "Album"
 msgstr ""
 
-#: bg_playlist.php:109
+#: bg_playlist.php:124
 msgid "Duration, sec."
 msgstr ""
 
-#: bg_playlist.php:110
+#: bg_playlist.php:125
 msgid "Link text"
 msgstr ""
 
-#: bg_playlist.php:113
+#: bg_playlist.php:128
 msgid "Width"
 msgstr ""
 
-#: bg_playlist.php:114
+#: bg_playlist.php:129
 msgid "Height"
 msgstr ""
 
-#: bg_playlist.php:116
+#: bg_playlist.php:131
 msgid "Insert"
 msgstr ""
 
-#: bg_playlist.php:117
+#: bg_playlist.php:132
 msgid "Cancel"
 msgstr ""
 
-#: bg_playlist.php:120 bg_playlist.php:576
+#: bg_playlist.php:135 bg_playlist.php:654
 msgid "Create playlist: select the text and click this button"
 msgstr ""
 
-#: bg_playlist.php:121
+#: bg_playlist.php:136
 msgid "Insert playlist"
 msgstr ""
 
-#: bg_playlist.php:123
+#: bg_playlist.php:138
 msgid "Playlist URL"
 msgstr ""
 
-#: bg_playlist.php:185
+#: bg_playlist.php:200
 msgid "This playlist format is not supported."
 msgstr ""
 
-#: bg_playlist.php:205 bg_playlist.php:257
+#: bg_playlist.php:222 bg_playlist.php:276
 msgid "Playlist not found or corrupt file."
 msgstr ""
 
-#: bg_playlist.php:245 bg_playlist.php:302
+#: bg_playlist.php:262 bg_playlist.php:321
 msgid "Playlist is empty or corrupt file."
 msgstr ""
 
-#: bg_playlist.php:706
+#: bg_playlist.php:488
+msgid "Download M3U playlist"
+msgstr ""
+
+#: bg_playlist.php:786 bg_playlist.php:787
 msgid "The page is need for revision."
 msgstr ""
 
-#: bg_playlist.php:706
+#: bg_playlist.php:786
 msgid "Text can be lost:"
+msgstr ""
+
+#: bg_playlist.php:787
+msgid " li-tags inside tracks"
 msgstr ""
 
 #: inc/options.php:8
@@ -161,81 +185,93 @@ msgstr ""
 msgid "Get duration from audiofile"
 msgstr ""
 
-#: inc/options.php:65
+#: inc/options.php:60
+msgid "Forward/rewind step"
+msgstr ""
+
+#: inc/options.php:66
 msgid "Player appearance"
 msgstr ""
 
-#: inc/options.php:68
+#: inc/options.php:69
 msgid "Show player header"
 msgstr ""
 
-#: inc/options.php:69
+#: inc/options.php:70
 msgid "Show tracklist"
 msgstr ""
 
-#: inc/options.php:70
+#: inc/options.php:71
 msgid "Show track numbers"
 msgstr ""
 
-#: inc/options.php:71
+#: inc/options.php:72
 msgid "Show track trumb"
 msgstr ""
 
-#: inc/options.php:72
+#: inc/options.php:73
 msgid "Show artists"
 msgstr ""
 
-#: inc/options.php:73
+#: inc/options.php:74
 msgid "Show album name"
 msgstr ""
 
-#: inc/options.php:74
+#: inc/options.php:75
 msgid "Show Download button"
 msgstr ""
 
-#: inc/options.php:75
+#: inc/options.php:76
 msgid "Show Play/Pause button"
 msgstr ""
 
-#: inc/options.php:76
+#: inc/options.php:77
+msgid "Show M3U playlist"
+msgstr ""
+
+#: inc/options.php:78
 msgid "Style"
 msgstr ""
 
-#: inc/options.php:77
+#: inc/options.php:79
 msgid "Skin"
 msgstr ""
 
-#: inc/options.php:103
+#: inc/options.php:105
 msgid "Don't load"
 msgstr ""
 
-#: inc/options.php:104
+#: inc/options.php:106
 msgid "Service information only"
 msgstr ""
 
-#: inc/options.php:105
+#: inc/options.php:107
 msgid "All while loading the page"
 msgstr ""
 
-#: inc/options.php:123
+#: inc/options.php:125
 msgid ""
 "(If the length of the track isn't set, try to get metadata from the "
 "audiofile)."
 msgstr ""
 
-#: inc/options.php:198
+#: inc/options.php:133
+msgid "sec."
+msgstr ""
+
+#: inc/options.php:217
 msgid "light"
 msgstr ""
 
-#: inc/options.php:199
+#: inc/options.php:218
 msgid "dark"
 msgstr ""
 
-#: inc/options.php:209
+#: inc/options.php:228
 msgid "For example"
 msgstr ""
 
-#: inc/options.php:211
+#: inc/options.php:230
 msgid "use light style"
 msgstr ""
 

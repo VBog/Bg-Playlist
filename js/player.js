@@ -15,15 +15,14 @@ jQuery(document).ready(function(){
 /*** НАЧАЛО: Кнопка триггера Play/Pause ***/
 		if (bg_playlist.play_pause) {
 			jQuery(function () {
+				var timerId;
 				// Добавляем кнопку
 				jQuery('div.wp-playlist:first').parent('div').append('<div id="wp-playlist-trigger"></div>');
-				if (parseInt(jQuery('div#wp-playlist-trigger').css('right')) < 10) 
-					jQuery('div#wp-playlist-trigger').css('right', '10px');
 				
 				jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-play');
 				jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_play);
 				// Определяем активный плеер
-				player = jQuery('.mejs-mediaelement audio').first(); // Сначала первый
+				var player = jQuery('.mejs-mediaelement audio').first(); // Сначала первый
 				// Воспроизведение
 				jQuery('.mejs-mediaelement audio').on ('play', function () {
 					player = jQuery(this);
@@ -31,21 +30,69 @@ jQuery(document).ready(function(){
 					jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-pause');
 					jQuery('div#wp-playlist-trigger').removeClass('wp-playlist-trigger-play');
 					jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_pause);
+					jQuery('body').append('<div class="wait_pls"></div>');
+					
+					timerId = setInterval(function() {
+						if (player[0].readyState > 0) {
+							if (player[0].duration != Infinity) {
+								// Добавляем кнопки prev и next
+								jQuery('div.wp-playlist:first').parent('div').append('<div id="wp-playlist-next"></div>');
+								jQuery('div#wp-playlist-next').attr('title', bg_playlist.title_next);
+								jQuery('div#wp-playlist-next').on ('click', function () {
+									var time = player[0].getCurrentTime();	// Получим текущее время трека
+									 time = time + parseInt(bg_playlist.step);
+									player[0].setCurrentTime (time);		// Установим время запуска трека
+								});
+
+								jQuery('div.wp-playlist:first').parent('div').append('<div id="wp-playlist-prev"></div>');
+								jQuery('div#wp-playlist-prev').attr('title', bg_playlist.title_prev);
+								jQuery('div#wp-playlist-prev').on ('click', function () {
+									var time = player[0].getCurrentTime();	// Получим текущее время трека
+									 time = time - parseInt(bg_playlist.step);
+									player[0].setCurrentTime (time);		// Установим время запуска трека
+								});
+							}
+							clearInterval(timerId);
+							jQuery('div.wait_pls').remove();
+						}
+					}, 100);
+					
 				});
 				// Пауза
 				jQuery('.mejs-mediaelement audio').on ('pause', function () {
-					player = jQuery(this);
-					// Меняем изображение кнопки
-					jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-play');
-					jQuery('div#wp-playlist-trigger').removeClass('wp-playlist-trigger-pause');
-					jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_play);
+					if (player[0].id == jQuery(this)[0].id) {
+						// Меняем изображение кнопки
+						jQuery('div#wp-playlist-trigger').addClass('wp-playlist-trigger-play');
+						jQuery('div#wp-playlist-trigger').removeClass('wp-playlist-trigger-pause');
+						jQuery('div#wp-playlist-trigger').attr('title', bg_playlist.title_play);
+						
+						// Удаляем кнопки prev и next
+						jQuery('div#wp-playlist-next').remove();
+						jQuery('div#wp-playlist-prev').remove();
+						if (timerId) {
+							clearInterval(timerId);
+							jQuery('div.wait_pls').remove();
+						}
+					}
 				});
 				// Нажали на кнопку
 				jQuery('div#wp-playlist-trigger').on ('click', function () {
+					var mejs = player.parents('div.wp-playlist');
+					var src = mejs.find('.wp-playlist-playing a').attr('href');
+					if (src != player[0].src){
+						player[0].src = src;
+					}
 					if(player[0].paused) {
 						player[0].play();
 					} else {
 						player[0].pause();
+					}
+				});
+				// Нажали на трек
+				jQuery('a.wp-playlist-caption').on ('click', function () {
+					var src = jQuery(this).attr('href');
+					if (src != player[0].src){
+						player[0].src = src;
 					}
 				});
 			});
@@ -57,8 +104,8 @@ jQuery(document).ready(function(){
 			jQuery('div.wp-playlist-item').each(function () {
 			var el = jQuery(this);
 				if (el.children('div.wp-playlist-item-length').length > 0) return;
-			var aud = new Audio();
-				the_link = el.children('a').prop('href');
+				var aud = new Audio();
+				var the_link = el.children('a').prop('href');
 				aud.src = the_link;
 				aud.addEventListener('loadedmetadata', function() {
 					sec = Math.round(aud.duration);
@@ -72,13 +119,42 @@ jQuery(document).ready(function(){
 /*** КОНЕЦ: Определяем продолжительность трека, если не задано ***/
 	
 /*** НАЧАЛО: Внедряем кнопку загрузки трека ***/
-		if (bg_playlist.download) {
+		if (bg_playlist.download && !is_iOs()) {
 			jQuery('div.wp-playlist-item').each(function () {
-				the_link = jQuery(this).children('a').prop('href');
-				jQuery(this).after('<div class="wp-playlist-item-download"><input type="button" onclick="location.href=\''+the_link+'\'" title="Скачать трек" /></div><div></div>');
+				var el = jQuery(this);
+				el.addClass('wp-playlist-item-inline');
+				var the_link = el.children('a').prop('href');
+//				the_link = the_link.replace('https://azbyka.ru', '');
+				var the_ext = the_link.split('.').pop();
+				var the_title =  el.children('a').children('span.wp-playlist-item-title').text().trim();				
+				if (el.children('div.wp-playlist-item-length').length > 0) {
+					el.after('<div class="wp-playlist-item-download"><a href="'+the_link+'" download="'+the_title+'.'+the_ext+'"><input type="button" title="Скачать трек" /></a></div>');
+				} else {
+					el.after('<div class="wp-playlist-item-blank"></div>');
+				}
 			});
-		} else jQuery('.wp-playlist-item').css('width', '100%');
+		}
 /*** КОНЕЦ: Внедряем кнопку загрузки трека ***/
+
+/*** НАЧАЛО: Меняем ссылку m3u для iOs ***/
+		if (is_iOs()) {
+			var i = 0;
+			jQuery('div.bg_download_m3u').each(function () {
+				var el = jQuery(this).children('a');
+				var the_link = el.prop('href');
+				el.removeAttr('href');
+				el.removeAttr('download');
+				el.removeAttr('title');
+				el.css('cursor','pointer')
+				el.click( function () {
+					iosCopyToClipboard(the_link, this);
+					bg_message(bg_playlist.already_copied+"<br>"+the_link, jQuery(this));
+				});
+				el.text(bg_playlist.url_to_clipboard);
+				i++;
+			});
+		}
+/*** КОНЕЦ: Меняем ссылку m3u для iOs ***/
 
 /*** НАЧАЛО: Скрыть шапку плейера ***/
 		if (!bg_playlist.header) jQuery('div.wp-playlist-current-item').hide();
@@ -112,71 +188,116 @@ jQuery(document).ready(function(){
 /*** НАЧАЛО: Всплывающая подсказка для ссылок ***/
 function bg_tooltip() {
 	
-//    var targets = jQuery( '[rel~=tooltip]' ),
-    var targets = jQuery( 'a.wp-playlist-caption' ),
-        target  = false,
-        tooltip = false,
-        title   = false;
-        target_win  = jQuery( 'div.wp-playlist:first' );
+    var targets = jQuery( 'a.wp-playlist-caption' );
+    var target_win  = jQuery( 'div.wp-playlist:first' );
 
-    targets.bind( 'mouseenter', function() {
-        target  = jQuery( this );
-		if (this.scrollWidth-this.clientWidth <= 0) return;	// Только если текст не умещается в блоке
+    targets.bind( 'mouseenter touchmove', function() {
+        var target  = jQuery( this );
 		
-		target.attr('title', jQuery(this).text().replace(/\s{2,}/g, ' '));
-        tip     = target.attr( 'title' );
-        tooltip = jQuery( '<div id="tooltip"></div>' );
+		jQuery('div#tooltip').each(function(ind, el){
+			el.remove();
+		});
+		if (this.scrollWidth-this.clientWidth <= 0) return false;	// Только если текст не умещается в блоке
+		
+		target.attr('title', target.text().replace(/\s{2,}/g, ' '));
+        var tip = target.attr( 'title' );
+        if( !tip || tip == '' ) return false;
 
-        if( !tip || tip == '' )
-            return false;
-
+        var tooltip = jQuery( '<div id="tooltip"></div>' );
         target.removeAttr( 'title' );
         tooltip.css( 'opacity', 0 )
                .html( tip )
                .appendTo( 'body' );
 
-        var init_tooltip = function()
-        {
-			tooltip.css( 'max-width', 480 );
-			tooltip.css( 'width', jQuery( window ).width() - 10);
+		tooltip.css( 'max-width', 480 );
+		tooltip.css( 'width', jQuery( window ).width() - 10);
 
-            var pos_left = target_win.offset().left + ( target_win.outerWidth() / 2 ) - ( tooltip.outerWidth() / 2 ),
-                pos_top  = target.offset().top - tooltip.outerHeight() - 10;
+		var pos_left = target_win.offset().left + ( target_win.outerWidth() / 2 ) - ( tooltip.outerWidth() / 2 );
+		var pos_top  = target.offset().top - tooltip.outerHeight() - 10;
 
-            if( pos_left < 0 ) {
-                pos_left = target_win.offset().left + target_win.outerWidth() / 2 - 20;
-                tooltip.addClass( 'left' );
-            } else tooltip.removeClass( 'left' );
+		if( pos_left < 0 ) {
+			pos_left = target_win.offset().left + target_win.outerWidth() / 2 - 20;
+			tooltip.addClass( 'left' );
+		} else tooltip.removeClass( 'left' );
 
-            if( pos_left + tooltip.outerWidth() > jQuery( window ).width() ) {
-                pos_left = target_win.offset().left - tooltip.outerWidth() + target_win.outerWidth() / 2 + 20;
-                tooltip.addClass( 'right' );
-            } else tooltip.removeClass( 'right' );
+		if( pos_left + tooltip.outerWidth() > jQuery( window ).width() ) {
+			pos_left = target_win.offset().left - tooltip.outerWidth() + target_win.outerWidth() / 2 + 20;
+			tooltip.addClass( 'right' );
+		} else tooltip.removeClass( 'right' );
 
-            if( pos_top < 0 ) {
-                var pos_top  = target.offset().top + target.outerHeight();
-                tooltip.addClass( 'top' );
-            }
-            else tooltip.removeClass( 'top' );
+		if( pos_top < 0 ) {
+			pos_top  = target.offset().top + target.outerHeight();
+			tooltip.addClass( 'top' );
+		}
+		else tooltip.removeClass( 'top' );
 
-            tooltip.css( { left: pos_left, top: pos_top } )
-                   .animate( { top: '+=10', opacity: 1 }, 250 );
-        };
-
-        init_tooltip();
+		tooltip.css( { left: pos_left, top: pos_top } )
+			   .animate( { top: '+=10', opacity: 1 }, 250 );
 
         var remove_tooltip = function() {
             tooltip.animate( { top: '-=10', opacity: 0 }, 250, function() {
                 jQuery( this ).remove();
             });
-
             target.attr( 'title', tip );
 			clearTimeout(timerId);
         };
         target.bind( 'mouseleave', remove_tooltip );
-        tooltip.bind( 'click', remove_tooltip );
-		timerId = setTimeout(remove_tooltip, 7000);
+		timerId = setTimeout(remove_tooltip, 3000);
 		
     });
 }
 /*** КОНЕЦ: Всплывающая подсказка для ссылок ***/
+
+/*** НАЧАЛО: Проверка, является ли система iOs ***/
+function is_iOs ()	{
+	var u	= navigator.userAgent;
+	return u.indexOf("iPhone") > -1 || u.indexOf("iPod") > -1 || u.indexOf("iPad") > -1;	
+}
+/*** КОНЕЦ: Проверка, является ли система iOs ***/
+
+/*** НАЧАЛО: Копирование в буфер обмена ***/
+function iosCopyToClipboard(href, e) {
+    var input = document.createElement("input");
+//    document.body.appendChild(input);
+    e.appendChild(input);
+    input.setAttribute('value', href);
+
+	var editable = input.contentEditable;
+	var readOnly = input.readOnly;
+
+	input.contentEditable = true;
+	input.readOnly = false;
+
+	var range = document.createRange();
+	range.selectNodeContents(input);
+
+	var selection = window.getSelection();
+	selection.removeAllRanges();
+	selection.addRange(range);
+
+	input.setSelectionRange(0, 999999);
+    document.execCommand('copy');
+	
+	input.contentEditable = editable;
+	input.readOnly = readOnly;
+
+//    document.body.removeChild(input);
+    e.removeChild(input);
+}
+/*** КОНЕЦ: Копирование в буфер обмена ***/
+
+function bg_message(text, el) {
+	var msg = jQuery( '<div class="message"></div>' );
+	msg.css('opacity', 0).html(text).appendTo('body');
+
+	var pos_top  = el.offset().top - msg.outerHeight() - 10;
+	msg.css( { top: pos_top } )
+		   .animate( { top: '+=10', opacity: 1 }, 250 );
+
+	var remove_msg = function() {
+		msg.remove();
+		clearTimeout(timerId);
+	};
+	timerId = setTimeout(remove_msg, 3000);
+
+}

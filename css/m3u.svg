@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/css" href="player.css"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	viewBox="0 0 320 320" style="enable-background:new 0 0 320 320;" xml:space="preserve">
+<style>
+.m3u_icon {
+	fill: #5a5a5a;
+}
+</style>	
+	<g class="m3u_icon">
+		<rect y="96" width="256" height="42.667"/>
+		<rect y="10.667" width="256" height="42.667"/>
+		<rect y="181.333" width="170.667" height="42.667"/>
+		<polygon points="213.333,181.333 213.333,309.333 320,245.333"/>
+	</g>
+</svg>
